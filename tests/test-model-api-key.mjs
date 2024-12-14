@@ -20,7 +20,7 @@ const {
 } = setupTestContext();
 
 describe('ApiKey', () => {
-    let services, apiKey, clearApiKeys;
+    let services, apiKey, clearDatabase;
 
     let getApiKeyAclRulesById;
 
@@ -28,11 +28,11 @@ describe('ApiKey', () => {
         services = s;
         const database = getDatabase(services);
         const {schema} = database;
-        ({clearApiKeys} = composeClearDataAccess(schema));
+        ({clearDatabase} = composeClearDataAccess(schema));
 
         ({getApiKeyAclRulesById} = composeApiKeysDataAccess(schema));
 
-        await clearApiKeys(database);
+        await clearDatabase(database);
         apiKey = getServiceBinder(services).createInstance(ApiKeyDAO);
     })
 
