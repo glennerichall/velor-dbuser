@@ -13,13 +13,17 @@ export const DaoEventEmitter = (DAO, name, getEmitter = getDefaultEmitter) => {
 
         async saveOne(vo) {
             let result = await super.saveOne(vo);
-            getEmitter(this).emit(ELEMENT_CREATED, name, result, vo);
+            if (result !== undefined && result !== null) {
+                getEmitter(this).emit(ELEMENT_CREATED, name, result, vo);
+            }
             return result;
         }
 
         async delete(query) {
             let result = await super.delete(query);
-            getEmitter(this).emit(ELEMENT_DELETED, name, result, query);
+            if (result !== undefined && result !== null) {
+                getEmitter(this).emit(ELEMENT_DELETED, name, result, query);
+            }
             return result;
         }
     };

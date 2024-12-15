@@ -11,6 +11,7 @@ import {
     ELEMENT_DELETED
 } from "../models/events.mjs";
 import {PREFERENCE} from "../models/names.mjs";
+import {timeoutAsync} from "velor-utils/utils/sync.mjs";
 
 const {
     expect,
@@ -50,7 +51,7 @@ describe('Model events', () => {
 
         let preference = await getPreferenceDAO(services).saveOne({user, name: 'foo', value: 'bar'});
         let [dao, {name, value, id, userId}] = await getEventQueue(services).waitDequeue(ELEMENT_CREATED,
-            data=>data[0] === PREFERENCE);
+            data => data[0] === PREFERENCE);
 
         expect(dao).to.eq(PREFERENCE);
         expect(name).to.eq('foo');
@@ -73,5 +74,16 @@ describe('Model events', () => {
         expect(value).to.eq('bar');
         expect(id).to.eq(preference.id);
         expect(userId).to.eq(user.id);
+    })
+
+    it('should not raise event of element does not exist', async ({services}) => {
+        await getPreferenceDAO(services).delete({user, name: 'foo'});
+
+        let result = await Promise.race([
+            getEventQueue(services).waitDequeue(ELEMENT_DELETED),
+            timeoutAsync(200).then(() => 'timedout')
+        ]);
+
+        expect(result).to.eq('timedout');
     })
 })
