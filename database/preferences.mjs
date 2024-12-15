@@ -43,9 +43,8 @@ export function getPreferencesSql(schema, tableNames = {}) {
         insert
         into ${schema}.${preferences} (name, user_id, value)
         values ($1, $2, $3) on conflict ("name", "user_id") do
-        update
-            set value = $3
-            returning *
+        update set value = $3
+        returning *, user_id
     `;
 
 

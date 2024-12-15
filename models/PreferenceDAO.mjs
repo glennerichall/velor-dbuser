@@ -57,6 +57,8 @@ export class PreferenceDAO extends DAOPolicy({
             pref = await getDataPreferences(this).deletePreferenceByName(userId, query.name);
         }
 
-        return pref;
+        pref = conformPreference(pref);
+
+        return  pref;
     }
 }

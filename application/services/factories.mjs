@@ -14,13 +14,22 @@ import {ApiKeyDAO} from "../../models/ApiKeyDAO.mjs";
 import {UserDAO} from "../../models/UserDAO.mjs";
 import {PreferenceDAO} from "../../models/PreferenceDAO.mjs";
 import {createStatementsInstance} from "../factories/createStatementsInstance.mjs";
+import {DaoEventEmitter} from "../../models/DaoEventEmitter.mjs";
+import {
+    API_KEY,
+    AUTH,
+    PREFERENCE,
+    ROLE,
+    RULE,
+    USER
+} from "../../models/names.mjs";
 
 export const factories = {
     [s_databaseStatements]: createStatementsInstance,
-    [s_roleDAO]: RoleDAO,
-    [s_ruleDAO]: RuleDAO,
-    [s_authDAO]: AuthDAO,
-    [s_apiKeyDAO]: ApiKeyDAO,
-    [s_userDAO]: UserDAO,
-    [s_preferenceDAO]: PreferenceDAO,
+    [s_roleDAO]: DaoEventEmitter(RoleDAO, ROLE),
+    [s_ruleDAO]: DaoEventEmitter(RuleDAO, RULE),
+    [s_authDAO]: DaoEventEmitter(AuthDAO, AUTH),
+    [s_apiKeyDAO]: DaoEventEmitter(ApiKeyDAO, API_KEY),
+    [s_userDAO]: DaoEventEmitter(UserDAO, USER),
+    [s_preferenceDAO]: DaoEventEmitter(PreferenceDAO, PREFERENCE),
 }
