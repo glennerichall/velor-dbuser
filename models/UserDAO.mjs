@@ -1,4 +1,7 @@
-import {getDataUsers} from "../application/services/dataServices.mjs";
+import {
+    getDataApiKeys,
+    getDataUsers
+} from "../application/services/dataServices.mjs";
 import {DAOPolicy} from "./BaseDAO.mjs";
 import {
     getApiKeyDAO,
@@ -69,6 +72,20 @@ export class UserDAO extends DAOPolicy({
 
     async getApiKeys(user) {
         return await getApiKeyDAO(this).loadMany({user});
+    }
+
+    async ownApiKey(user, apiKey) {
+        await getDataUsers(this).addApiKeyOwner(apiKey.id, user.id);
+    }
+
+    async createApiKey(user, name) {
+        let apiKey = await getApiKeyDAO(this).saveOne({name});
+        await this.ownApiKey(user, apiKey);
+        return apiKey;
+    }
+
+    async getApiKey(user, publicId) {
+        return await getApiKeyDAO(this).loadOne({user, publicId});
     }
 
     async getAclRules(user, ...categories) {

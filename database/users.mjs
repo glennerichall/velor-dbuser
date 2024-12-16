@@ -9,6 +9,8 @@ export function getUsersSql(schema, tableNames = {}) {
         roles,
         userRoles,
         auths,
+        userApiKeys,
+        apiKeys
     } = getTableNames(tableNames);
 
     const getPrimaryAuthByUserIdSql = `
@@ -154,7 +156,7 @@ export function getUsersSql(schema, tableNames = {}) {
     `;
 
     const addApiKeyOwnerSql = `
-        insert into ${schema}.users_api_keys
+        insert into ${schema}.${userApiKeys}
             (api_key_id, user_id)
         values ($1, $2)
     `;
@@ -175,10 +177,10 @@ export function getUsersSql(schema, tableNames = {}) {
           and auths.provider = $2
     `;
 
-    const queryApiKeyByUserSql = `
+    const getApiKeyByUserSql = `
         select *
-        from ${schema}.api_keys k
-                 inner join ${schema}.users_api_keys u on k.id = u.api_key_id
+        from ${schema}.${apiKeys} k
+                 inner join ${schema}.${userApiKeys} u on k.id = u.api_key_id
         where u.user_id = $1
           and k.public_id = $2
     `;
@@ -227,7 +229,8 @@ export function getUsersSql(schema, tableNames = {}) {
         addApiKeyOwnerSql,
         countUsersSql,
         queryApiKeyByAuthSql,
-        queryApiKeyByUserSql,
+
+        getApiKeyByUserSql,
         queryApiKeyForValueByUserSql,
         getUserApiKeysByUserIdSql,
         getUserRolesByUserIdSql,
@@ -255,6 +258,7 @@ export function composeUsersDataAccess(schema, tableNames = {}) {
         countUsersSql,
         queryApiKeyByAuthSql,
         getUserRolesByUserIdSql,
+        getApiKeyByUserSql,
     } = getUsersSql(schema, tableNames);
 
 
@@ -333,8 +337,8 @@ export function composeUsersDataAccess(schema, tableNames = {}) {
         return res.rows;
     }
 
-    async function queryApiKeyByUser(client, id, userId) {
-        const res = await client.query(queryApiKeyByUserSql, [userId, id]);
+    async function getApiKeyByUser(client, publicId, userId) {
+        const res = await client.query(getApiKeyByUserSql, [userId, publicId]);
         return res.rowCount === 1 ? res.rows[0] : null;
     }
 
@@ -362,22 +366,15 @@ export function composeUsersDataAccess(schema, tableNames = {}) {
         getPrimaryAuthByUserId,
         getPrimaryAuthByProfile,
         getPrimaryAuthByAuthId,
-        queryByLastFingerprint,
         insertUser,
-        queryForLastLogin,
-        insertLoginEvent,
-        grantUserRoleByProfile,
         grantUserRoleByUserId,
-        getUserIdByApiKey,
         revokeUserRoleByProfile,
         revokeUserRoleByUserId,
         getUserAclRulesByUserId,
-        addApiKeyOwner,
-        queryApiKeyByAuth,
-        queryApiKeyByUser,
-        queryApiKeyForValueByUser,
         getUserApiKeysByUserId,
         getUserRolesByUserId,
-        countUsers
+        countUsers,
+        getApiKeyByUser,
+        addApiKeyOwner,
     };
 }

@@ -1,7 +1,10 @@
 import {setupTestContext} from "./fixtures/setupTestContext.mjs";
 import {composeClearDataAccess} from "./fixtures/database-clear.mjs";
 import {getDatabase} from "velor-database/application/services/services.mjs";
-import {getDataUsers} from "../application/services/dataServices.mjs";
+import {
+    getDataApiKeys,
+    getDataUsers
+} from "../application/services/dataServices.mjs";
 import {
     getAuthDAO,
     getRoleDAO,
@@ -37,10 +40,12 @@ describe('User', () => {
         const database = getDatabase(services);
         const {
             clearAuths,
-            clearRoles
+            clearRoles,
+            clearApiKeys
         } = composeClearDataAccess(database.schema);
         await clearAuths(database);
         await clearRoles(database);
+        await clearApiKeys(database);
 
         auth = await getAuthDAO(services).saveOne(profile);
 
@@ -178,5 +183,23 @@ describe('User', () => {
         await userDao.setPreference(user, 'my-pref2', {foo: 'bar'});
         let pref = await userDao.getPreferences(user);
         expect(pref).to.have.length(2);
+    })
+
+    it('should create api key', async () => {
+        let user = await userDao.saveOne(auth);
+        let apiKeys = await getDataApiKeys(services).getAllApiKeys();
+        expect(apiKeys).to.have.length(0);
+        let apiKey = await userDao.createApiKey(user, 'an api key for myself');
+        expect(apiKey).to.not.be.undefined;
+        apiKeys = await getDataApiKeys(services).getAllApiKeys();
+        expect(apiKeys).to.have.length(1);
+        expect(apiKeys[0].public_id).to.eq(apiKey.publicId);
+    })
+
+    it('should get api keys', async () => {
+        let user = await userDao.saveOne(auth);
+        let apiKey = await userDao.createApiKey(user, 'my-pref', {foo: 'bar'});
+        let loaded = await userDao.getApiKey(user, apiKey.publicId);
+        expect(loaded.id).to.eq(apiKey.id);
     })
 })

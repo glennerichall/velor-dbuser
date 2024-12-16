@@ -22,7 +22,12 @@ export class ApiKeyDAO extends DAOPolicy({
     async selectOne(query) {
         let apiKey;
         if (query.publicId) {
-            apiKey = await getDataApiKeys(this).getApiKeyByPublicId(query.publicId);
+            if (query.user) {
+                let userId = await getUserDAO(this).loadId(query.user);
+                apiKey = await getDataUsers(this).getApiKeyByUser(query.publicId, userId);
+            } else {
+                apiKey = await getDataApiKeys(this).getApiKeyByPublicId(query.publicId);
+            }
 
         } else if (query.value) {
             apiKey = await getDataApiKeys(this).getApiKeyByValue(query.value);
