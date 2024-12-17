@@ -39,13 +39,10 @@ describe('User', () => {
         services = s;
         const database = getDatabase(services);
         const {
-            clearAuths,
-            clearRoles,
-            clearApiKeys
+            clearDatabase
         } = composeClearDataAccess(database.schema);
-        await clearAuths(database);
-        await clearRoles(database);
-        await clearApiKeys(database);
+
+        await clearDatabase(database);
 
         auth = await getAuthDAO(services).saveOne(profile);
 
