@@ -76,12 +76,14 @@ export class UserDAO extends DAOPolicy({
 
     async ownApiKey(user, apiKey) {
         let userId = await this.loadId(user);
-        await getDataUsers(this).addApiKeyOwner(apiKey.id, userId);
+        let apiKeyId = await getApiKeyDAO(this).loadId(apiKey);
+        await getDataUsers(this).addApiKeyOwner(apiKeyId, userId);
     }
 
     async loseApiKey(user, apiKey) {
         let userId = await this.loadId(user);
-        await getDataUsers(this).removeApiKeyOwner(apiKey.id, userId);
+        let apiKeyId = await getApiKeyDAO(this).loadId(apiKey);
+        await getDataUsers(this).removeApiKeyOwner(apiKeyId, userId);
     }
 
     async createApiKey(user, name) {
@@ -90,8 +92,8 @@ export class UserDAO extends DAOPolicy({
         return apiKey;
     }
 
-    async getApiKey(user, publicId) {
-        return await getApiKeyDAO(this).loadOne({user, publicId});
+    async getApiKey(user, apiKey) {
+        return await getApiKeyDAO(this).loadOne({user, ...apiKey});
     }
 
     async getAclRules(user, ...categories) {

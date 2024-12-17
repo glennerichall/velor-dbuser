@@ -196,7 +196,7 @@ describe('User', () => {
     it('should get api keys', async () => {
         let user = await userDao.saveOne(auth);
         let apiKey = await userDao.createApiKey(user, 'my-pref', {foo: 'bar'});
-        let loaded = await userDao.getApiKey(user, apiKey.publicId);
+        let loaded = await userDao.getApiKey(user, {publicId: apiKey.publicId});
         expect(loaded.id).to.eq(apiKey.id);
     })
 
@@ -204,7 +204,7 @@ describe('User', () => {
         let user = await userDao.saveOne(auth);
         let apiKey = await userDao.createApiKey(user, 'my-pref', {foo: 'bar'});
         await userDao.loseApiKey(user, apiKey);
-        let loaded = await userDao.getApiKey(user, apiKey.publicId);
+        let loaded = await userDao.getApiKey(user, {publicId: apiKey.publicId});
         expect(loaded).to.be.null;
     })
 })
