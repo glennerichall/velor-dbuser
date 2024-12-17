@@ -202,4 +202,12 @@ describe('User', () => {
         let loaded = await userDao.getApiKey(user, apiKey.publicId);
         expect(loaded.id).to.eq(apiKey.id);
     })
+
+    it('should lose api key', async()=> {
+        let user = await userDao.saveOne(auth);
+        let apiKey = await userDao.createApiKey(user, 'my-pref', {foo: 'bar'});
+        await userDao.loseApiKey(user, apiKey);
+        let loaded = await userDao.getApiKey(user, apiKey.publicId);
+        expect(loaded).to.be.null;
+    })
 })

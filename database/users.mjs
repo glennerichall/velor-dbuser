@@ -161,6 +161,11 @@ export function getUsersSql(schema, tableNames = {}) {
         values ($1, $2)
     `;
 
+    const removeApiKeyOwnerSql = `
+        delete from ${schema}.${userApiKeys}
+        where api_key_id = $1 and user_id = $2
+    `;
+
     const countUsersSql = `
         select count(*)
         from ${schema}.${users}
@@ -227,6 +232,8 @@ export function getUsersSql(schema, tableNames = {}) {
         getUserAclRulesByUserIdSql,
         getPrimaryAuthByAuthIdSql,
         addApiKeyOwnerSql,
+        removeApiKeyOwnerSql,
+
         countUsersSql,
         queryApiKeyByAuthSql,
 
@@ -255,6 +262,7 @@ export function composeUsersDataAccess(schema, tableNames = {}) {
         getUserAclRulesByUserIdSql,
         getPrimaryAuthByAuthIdSql,
         addApiKeyOwnerSql,
+        removeApiKeyOwnerSql,
         countUsersSql,
         queryApiKeyByAuthSql,
         getUserRolesByUserIdSql,
@@ -332,6 +340,11 @@ export function composeUsersDataAccess(schema, tableNames = {}) {
         return res.rowCount === 1;
     }
 
+    async function removeApiKeyOwner(client, apiKeyId, userId) {
+        const res = await client.query(removeApiKeyOwnerSql, [apiKeyId, userId]);
+        return res.rowCount === 1;
+    }
+
     async function queryApiKeyByAuth(client, authId, provider) {
         const res = await client.query(queryApiKeyByAuthSql, [authId, provider]);
         return res.rows;
@@ -376,5 +389,6 @@ export function composeUsersDataAccess(schema, tableNames = {}) {
         countUsers,
         getApiKeyByUser,
         addApiKeyOwner,
+        removeApiKeyOwner,
     };
 }

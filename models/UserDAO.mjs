@@ -78,6 +78,10 @@ export class UserDAO extends DAOPolicy({
         await getDataUsers(this).addApiKeyOwner(apiKey.id, user.id);
     }
 
+    async loseApiKey(user, apiKey) {
+        await getDataUsers(this).removeApiKeyOwner(apiKey.id, user.id);
+    }
+
     async createApiKey(user, name) {
         let apiKey = await getApiKeyDAO(this).saveOne({name});
         await this.ownApiKey(user, apiKey);
