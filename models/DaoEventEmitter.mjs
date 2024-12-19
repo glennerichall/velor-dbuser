@@ -11,6 +11,10 @@ export const DaoEventEmitter = (DAO, name, getEmitter = getDefaultEmitter) => {
             super(...args);
         }
 
+        get name() {
+            return name;
+        }
+
         async saveOne(vo) {
             let result = await super.saveOne(vo);
             if (result !== undefined && result !== null) {
