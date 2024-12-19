@@ -77,7 +77,7 @@ export class ApiKeyDAO extends DAOPolicy({
         return getDataApiKeys(this).createApiKey(data.name);
     }
 
-    async deleteOne(query) {
+    async delete(query) {
         let result;
 
         if (query.publicId) {
