@@ -81,6 +81,7 @@ export class BaseDAO {
             vo = this.conformVO(vo);
             vo = this.makeVO(vo);
         }
+
         return vo;
     }
 }

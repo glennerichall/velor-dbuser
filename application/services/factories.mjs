@@ -1,4 +1,5 @@
 import {
+    s_accessDao,
     s_apiKeyDAO,
     s_authDAO,
     s_preferenceDAO,
@@ -16,6 +17,7 @@ import {PreferenceDAO} from "../../models/PreferenceDAO.mjs";
 import {createStatementsInstance} from "../factories/createStatementsInstance.mjs";
 import {DaoEventEmitter} from "../../models/DaoEventEmitter.mjs";
 import {
+    ACCESS,
     API_KEY,
     AUTH,
     PREFERENCE,
@@ -23,6 +25,7 @@ import {
     RULE,
     USER
 } from "../../models/names.mjs";
+import {AccessDao} from "../../models/AccessDao.mjs";
 
 export const factories = {
     [s_databaseStatements]: createStatementsInstance,
@@ -32,4 +35,5 @@ export const factories = {
     [s_apiKeyDAO]: DaoEventEmitter(ApiKeyDAO, API_KEY),
     [s_userDAO]: DaoEventEmitter(UserDAO, USER),
     [s_preferenceDAO]: DaoEventEmitter(PreferenceDAO, PREFERENCE),
+    [s_accessDao]: DaoEventEmitter(AccessDao, ACCESS)
 }

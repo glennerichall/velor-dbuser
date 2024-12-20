@@ -36,7 +36,6 @@ describe('database acl', () => {
     it('should query all acl', async ({database}) => {
         const {
             client,
-            schema
         } = database;
 
         let rule1 = await insertAclGrantRule(client, {
