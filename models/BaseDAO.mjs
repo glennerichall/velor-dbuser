@@ -74,7 +74,7 @@ export class BaseDAO {
     }
 
     async saveOne(data) {
-        let vo = await this.loadOne(data) ?? data;
+        let vo = data;
 
         if (await this.canSave(vo)) {
             vo = await this.insertOne(vo);
@@ -83,6 +83,11 @@ export class BaseDAO {
         }
 
         return vo;
+    }
+
+    async loadOrSave(data) {
+        data = await this.loadOne(data) ?? data;
+        return this.saveOne(data);
     }
 }
 
@@ -127,6 +132,7 @@ export const DAOPolicy = (policy = {}) => {
     } = policy;
 
     return class extends BaseDAO {
+
         isVO(obj) {
             return isVO(obj);
         }
@@ -140,8 +146,7 @@ export const DAOPolicy = (policy = {}) => {
         }
 
         async canSave(data) {
-            const vo = await this.loadOne(data);
-            return canSave(vo);
+            return canSave(data);
         }
     };
 }

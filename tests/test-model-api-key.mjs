@@ -8,7 +8,6 @@ import {
 } from "../application/services/dataServices.mjs";
 import {getRuleDAO} from "../application/services/services.mjs";
 import {composeApiKeysDataAccess} from "../database/apiKeys.mjs";
-import {composeClearDataAccess} from "./fixtures/database-clear.mjs";
 
 const {
     expect,
@@ -20,7 +19,7 @@ const {
 } = setupTestContext();
 
 describe('ApiKey', () => {
-    let services, apiKey, clearDatabase;
+    let services, apiKey;
 
     let getApiKeyAclRulesById;
 
@@ -28,11 +27,8 @@ describe('ApiKey', () => {
         services = s;
         const database = getDatabase(services);
         const {schema} = database;
-        ({clearDatabase} = composeClearDataAccess(schema));
 
         ({getApiKeyAclRulesById} = composeApiKeysDataAccess(schema));
-
-        await clearDatabase(database);
         apiKey = getServiceBinder(services).createInstance(ApiKeyDAO);
     })
 

@@ -11,12 +11,14 @@ import {
     getRoleDAO,
     getUserDAO
 } from "../application/services/services.mjs";
+import {RULE} from "./names.mjs";
 
-const ruleSym = Symbol("rule");
+const ruleSym = Symbol(RULE);
 
 export class RuleDAO extends DAOPolicy({
     conformVO: conformRule,
-    symbol: ruleSym
+    symbol: ruleSym,
+    loadBeforeSave: true,
 }) {
 
     async selectOne(query) {

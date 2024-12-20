@@ -1,8 +1,9 @@
 import {getDataAuths} from "../application/services/dataServices.mjs";
 import {conformAuth} from "./conform/conformAuth.mjs";
 import {DAOPolicy} from "./BaseDAO.mjs";
+import {AUTH} from "./names.mjs";
 
-const authSym = Symbol("auth");
+const authSym = Symbol(AUTH);
 
 export class AuthDAO extends DAOPolicy({
     symbol: authSym,

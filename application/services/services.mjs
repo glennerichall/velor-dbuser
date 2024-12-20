@@ -1,6 +1,7 @@
 import {
     s_apiKeyDAO,
     s_authDAO,
+    s_logins,
     s_preferenceDAO,
     s_roleDAO,
     s_ruleDAO,
@@ -31,4 +32,8 @@ export function getAuthDAO(services) {
 
 export function getPreferenceDAO(services) {
     return getProvider(services)[s_preferenceDAO]();
+}
+
+export function getLoginDao(services) {
+    return getProvider(services)[s_logins]();
 }

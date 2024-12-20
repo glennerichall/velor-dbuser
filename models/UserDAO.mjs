@@ -1,22 +1,23 @@
-import {
-    getDataApiKeys,
-    getDataUsers
-} from "../application/services/dataServices.mjs";
+import {getDataUsers} from "../application/services/dataServices.mjs";
 import {DAOPolicy} from "./BaseDAO.mjs";
 import {
     getApiKeyDAO,
     getAuthDAO,
+    getLoginDao,
     getPreferenceDAO,
     getRoleDAO,
     getRuleDAO
 } from "../application/services/services.mjs";
 import {conformUser} from "./conform/conformUser.mjs";
+import {USER} from "./names.mjs";
+import {name} from "ejs";
 
-const userSym = Symbol("user");
+const userSym = Symbol(USER);
 
 export class UserDAO extends DAOPolicy({
     symbol: userSym,
-    conformVO: conformUser
+    conformVO: conformUser,
+    loadBeforeSave: true,
 }) {
 
     async selectOne(query) {
@@ -114,5 +115,24 @@ export class UserDAO extends DAOPolicy({
 
     async setPreference(user, name, value) {
         return await getPreferenceDAO(this).saveOne({user, name, value});
+    }
+
+    async saveLoginEvent(user, info, type = 'login') {
+        let authId;
+
+        if (!user.primaryAuthId) {
+            user = this.loadOne(user);
+        }
+        authId = user.primaryAuthId;
+
+        return getLoginDao(this).saveOne({
+            authId,
+            ...info,
+            type
+        });
+    }
+
+    async saveLogoutEvent(user, info) {
+        return this.saveLoginEvent(user, info, 'logout');
     }
 }

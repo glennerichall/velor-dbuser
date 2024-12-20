@@ -21,9 +21,8 @@ describe('database acl', () => {
     let getAllAclRules;
 
     beforeEach(async ({database}) => {
-        const {schema, clear} = database;
+        const {schema} = database;
 
-        await clear();
         statements = composeAclDataAccess(schema);
 
         ({

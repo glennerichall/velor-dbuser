@@ -101,11 +101,13 @@ describe('Rule', () => {
     })
 
     it('should not save twice', async () => {
-        let saved = await rule.saveOne(data);
+        let saved = await rule.loadOrSave(data);
         let id = saved.id;
 
-        saved = await rule.saveOne(saved);
-        saved = await rule.saveOne(data);
+        saved = await rule.loadOrSave(saved);
+        saved = await rule.loadOrSave(data);
+
+        expect(rule.saveOne(data)).to.eventually.be.rejected;
 
         let rules = await getDataAcl(services).getAllAclRules();
         expect(rules).to.have.length(1);

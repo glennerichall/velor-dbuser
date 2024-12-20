@@ -7,6 +7,7 @@ import {
 } from "../application/services/dataServices.mjs";
 import {
     getAuthDAO,
+    getLoginDao,
     getRoleDAO,
     getUserDAO
 } from "../application/services/services.mjs";
@@ -37,13 +38,6 @@ describe('User', () => {
 
     beforeEach(async ({services: s}) => {
         services = s;
-        const database = getDatabase(services);
-        const {
-            clearDatabase
-        } = composeClearDataAccess(database.schema);
-
-        await clearDatabase(database);
-
         auth = await getAuthDAO(services).saveOne(profile);
 
         await getRoleDAO(services).saveOne({
@@ -130,22 +124,27 @@ describe('User', () => {
         let data = await getDataUsers(services).countUsers();
         expect(data).to.eq(1);
 
-        await userDao.saveOne({
+        await userDao.loadOrSave({
             authId: auth.id
         });
 
         data = await getDataUsers(services).countUsers();
         expect(data).to.eq(1);
 
-        await userDao.saveOne({
+        await userDao.loadOrSave({
             profileId: auth.profileId,
             provider: auth.provider,
         });
 
+        expect(userDao.saveOne({
+            profileId: auth.profileId,
+            provider: auth.provider,
+        })).to.eventually.be.rejected;
+
         data = await getDataUsers(services).countUsers();
         expect(data).to.eq(1);
 
-        await userDao.saveOne(auth);
+        await userDao.loadOrSave(auth);
 
         data = await getDataUsers(services).countUsers();
         expect(data).to.eq(1);
@@ -200,11 +199,42 @@ describe('User', () => {
         expect(loaded.id).to.eq(apiKey.id);
     })
 
-    it('should lose api key', async()=> {
+    it('should lose api key', async () => {
         let user = await userDao.saveOne(auth);
         let apiKey = await userDao.createApiKey(user, 'my-pref', {foo: 'bar'});
         await userDao.loseApiKey(user, apiKey);
         let loaded = await userDao.getApiKey(user, {publicId: apiKey.publicId});
         expect(loaded).to.be.null;
+    })
+
+    it('should save login event', async () => {
+        let user = await userDao.saveOne(auth);
+        let login = await userDao.saveLoginEvent(user, {
+            ip: '127.0.0.1',
+            fingerprint: '1232354'
+        });
+
+        expect(login).to.not.be.undefined;
+
+        let logins = await getLoginDao(services).loadMany({authId: user.primaryAuthId});
+        expect(logins).to.have.length(1);
+    })
+
+    it('should save logout event', async () => {
+        let user = await userDao.saveOne(auth);
+        let login = await userDao.saveLoginEvent(user, {
+            ip: '127.0.0.1',
+            fingerprint: '1232354'
+        });
+
+        let logout = await userDao.saveLogoutEvent(user, {
+            ip: '127.0.0.1',
+            fingerprint: '1232354'
+        });
+
+        expect(logout).to.not.be.undefined;
+
+        let logins = await getLoginDao(services).loadMany({authId: user.primaryAuthId});
+        expect(logins).to.have.length(2);
     })
 })

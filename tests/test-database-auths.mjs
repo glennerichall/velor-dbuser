@@ -27,9 +27,7 @@ describe('database auths', () => {
         getAuthByProvider;
 
     beforeEach(async ({database}) => {
-        const {schema, clear} = database;
-
-        await clear();
+        const {schema} = database;
 
         ({
             insertAuth,
@@ -78,13 +76,15 @@ describe('database auths', () => {
         } = database;
 
         await insertAuth(client, auth);
-        let error;
-        try {
-            await insertAuth(client, auth);
-        } catch (e) {
-            error = e;
-        }
-        expect(error).to.be.an.instanceOf(Error);
+        expect(insertAuth(client, auth)).to.eventually.be.rejected;
+    })
+
+    it('should allow multiple (auth_id, provider) pair', async ({database}) => {
+        const {
+            client,
+        } = database;
+
+        await insertAuth(client, auth);
 
         // also validate other pairs
         await insertAuth(client, {

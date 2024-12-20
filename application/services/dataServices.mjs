@@ -2,8 +2,8 @@ import {
     DATA_ACCESS,
     DATA_ACL,
     DATA_API_KEYS,
-    DATA_AUTH_TOKENS,
     DATA_AUTHS,
+    DATA_LOGINS,
     DATA_PREFERENCES,
     DATA_ROLES,
     DATA_USERS,
@@ -22,8 +22,8 @@ export function getDataAccess(services) {
     return getDatabase(services)[DATA_ACCESS];
 }
 
-export function getDataAuthTokens(services) {
-    return getDatabase(services)[DATA_AUTH_TOKENS];
+export function getDataLogins(services) {
+    return getDatabase(services)[DATA_LOGINS];
 }
 
 export function getDataApiKeys(services) {

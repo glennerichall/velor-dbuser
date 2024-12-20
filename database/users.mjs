@@ -72,23 +72,9 @@ export function getUsersSql(schema, tableNames = {}) {
 
     const insertUserSql = `
         insert into ${schema}.${users} (primary_auth_id)
-        values ($1) returning *
-    `;
-
-    const queryForLastLoginSql = `
-        select logins.id, ip, date, fingerprint
-        from ${schema}.user_auths
-            inner join ${schema}.logins
-        on logins.auth_id = user_auths.auth_id
-        where user_id = $1
-          and type = 'login'
-        order by date desc
-            limit 2
-    `;
-
-    const insertLoginEventSql = `
-        insert into ${schema}.logins (fingerprint, auth_id, ip, type)
-        values ($1, $2, $3, $4)
+        values ($1)
+        ON CONFLICT (primary_auth_id) DO NOTHING
+        returning *
     `;
 
     const grantUserRoleByProfileSql = `
@@ -222,8 +208,6 @@ export function getUsersSql(schema, tableNames = {}) {
         getPrimaryAuthByProfileSql,
         queryByLastFingerprintSql,
         insertUserSql,
-        queryForLastLoginSql,
-        insertLoginEventSql,
         grantUserRoleByProfileSql,
         grantUserRoleByUserIdSql,
         getUserIdByApiKeySql,
@@ -252,8 +236,6 @@ export function composeUsersDataAccess(schema, tableNames = {}) {
         getPrimaryAuthByProfileSql,
         queryByLastFingerprintSql,
         insertUserSql,
-        queryForLastLoginSql,
-        insertLoginEventSql,
         grantUserRoleByProfileSql,
         grantUserRoleByUserIdSql,
         getUserIdByApiKeySql,
@@ -294,16 +276,6 @@ export function composeUsersDataAccess(schema, tableNames = {}) {
     async function insertUser(client, authId) {
         const res = await client.query(insertUserSql, [authId,]);
         return res.rowCount === 1 ? res.rows[0] : null;
-    }
-
-    async function queryForLastLogin(client, userId) {
-        const res = await client.query(queryForLastLoginSql, [userId]);
-        return res.rows;
-    }
-
-    async function insertLoginEvent(client, fingerprint, auth_id, ip, type = 'login') {
-        const res = await client.query(insertLoginEventSql, [fingerprint, auth_id, ip, type]);
-        return res.rowCount === 1;
     }
 
     async function grantUserRoleByProfile(client, profileId, provider, roleName) {

@@ -25,7 +25,6 @@ describe('database api key acl', () => {
         const {
             client,
             schema,
-            clear
         } = database;
 
         ({
@@ -38,8 +37,6 @@ describe('database api key acl', () => {
             insertAclDenyRule,
             insertAclGrantRule
         } = composeAclDataAccess(schema));
-
-        await clear();
 
         rule1 = await insertAclGrantRule(client, {
             name: 'rule1',

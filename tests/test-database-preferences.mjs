@@ -44,11 +44,9 @@ describe('database roles', () => {
     beforeEach(async ({database}) => {
         const {
             client,
-            schema,
-            clear
+            schema
         } = database;
 
-        await clear();
 
         ({
             deletePreferenceByName,

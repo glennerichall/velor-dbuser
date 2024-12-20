@@ -347,4 +347,7 @@ create unique index if not exists value_unique
 create unique index if not exists user_auths_user_id_auth_id_uindex
             on "@{SCHEMA}".@{TABLE_USER_AUTHS} ("auth_id", "user_id");
 
+create unique index users_primary_auth_id_uindex
+    on "@{SCHEMA}".@{TABLE_USERS} ("primary_auth_id");
+
 COMMIT;

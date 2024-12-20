@@ -11,8 +11,9 @@ import {
 } from "../application/services/services.mjs";
 import {services} from "../tests/fixtures/services.mjs";
 import {NotImplementedError} from "velor-utils/utils/errors/NotImplementedError.mjs";
+import {API_KEY} from "./names.mjs";
 
-const apiKeySymbol = Symbol("ApiKey");
+const apiKeySymbol = Symbol(API_KEY);
 
 export class ApiKeyDAO extends DAOPolicy({
     symbol: apiKeySymbol,

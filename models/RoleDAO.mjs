@@ -8,13 +8,15 @@ import {
     getRuleDAO,
     getUserDAO
 } from "../application/services/services.mjs";
+import {ROLE} from "./names.mjs";
 
-const roleSym = Symbol("role");
+const roleSym = Symbol(ROLE);
 
 
 export class RoleDAO extends DAOPolicy({
     symbol: roleSym,
     conformVO: conformRole,
+    loadBeforeSave: true,
 }) {
     async selectOne(query) {
         let role;

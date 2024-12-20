@@ -20,7 +20,7 @@ const {
 
 
 describe('Preferences', () => {
-    let services, preference, clearPreferences;
+    let services, preference;
 
     const profile = {
         profileId: "mi@gmail.com",
@@ -37,12 +37,6 @@ describe('Preferences', () => {
 
     beforeEach(async ({services: s}) => {
         services = s;
-        const database = getDatabase(services);
-        const {schema} = database;
-        ({clearPreferences} = composeClearDataAccess(schema));
-
-
-        await clearPreferences(database);
         preference = getServiceBinder(services).createInstance(PreferenceDAO);
 
         await getRoleDAO(services).saveOne({

@@ -31,12 +31,6 @@ describe('Auth', () => {
 
     beforeEach(async ({services: s}) => {
         services = s;
-        const database = getDatabase(services);
-        const {schema} = database;
-        let {
-            clearAuths
-        } = composeClearDataAccess(schema);
-        await clearAuths(database);
         auth = getServiceBinder(services).createInstance(AuthDAO);
     })
 
@@ -110,8 +104,8 @@ describe('Auth', () => {
     })
 
     it('should not save auth if already in database', async () => {
-        let first = await auth.saveOne(profile);
-        let loaded = await auth.saveOne(profile);
+        let first = await auth.loadOrSave(profile);
+        let loaded = await auth.loadOrSave(profile);
         expect(auth.isVO(loaded)).to.be.true;
 
         let auths = await getDataAuths(services).getAllAuths();

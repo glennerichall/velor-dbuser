@@ -45,10 +45,7 @@ describe('database user acl', () => {
         const {
             client,
             schema,
-            clear
         } = database;
-
-        await clear();
 
         ({
             addAclRuleToRole,

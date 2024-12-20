@@ -18,10 +18,7 @@ describe('database roles', () => {
         const {
             client,
             schema,
-            clear
         } = database;
-
-        await clear();
 
         ({
             createRole,
@@ -50,13 +47,6 @@ describe('database roles', () => {
         const {
             client,
         } = database;
-
-        let error;
-        try {
-            await createRole(client, 'god', 'There is only one');
-        } catch (e) {
-            error = e;
-        }
-        expect(error).to.be.an.instanceOf(Error);
+        expect(createRole(client, 'god', 'There is only one')).to.eventually.be.rejected;
     })
 });

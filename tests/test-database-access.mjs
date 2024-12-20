@@ -1,6 +1,7 @@
 import {setupTestContext} from "./fixtures/setupTestContext.mjs";
 import {composeAccessDataAccess} from "../database/access.mjs";
 import {conformAccess} from "../models/conform/conformAccess.mjs";
+import {beginTransact} from "velor-database/database/beginTransact.mjs";
 
 const {
     expect,
@@ -17,9 +18,7 @@ describe('database access', () => {
         selectAll;
 
     beforeEach(async ({database}) => {
-        const {schema, clear} = database;
-
-        await clear();
+        const {schema} = database;
         statements = composeAccessDataAccess(schema);
 
         ({
@@ -43,7 +42,7 @@ describe('database access', () => {
             userId: null,
             loggedIn: false
         };
-        
+
         let access = await insertAccess(client, data);
         access = conformAccess(access);
         expect(access).to.not.be.undefined;

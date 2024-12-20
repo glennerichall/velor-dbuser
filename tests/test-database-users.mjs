@@ -43,10 +43,7 @@ describe('database users', () => {
         const {
             client,
             schema,
-            clear
         } = database;
-
-        await clear();
 
         ({
             grantUserRoleByUserId,

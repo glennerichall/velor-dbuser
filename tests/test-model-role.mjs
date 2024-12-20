@@ -86,9 +86,9 @@ describe('Role', () => {
         });
         let id = saved.id;
 
-        await role.saveOne(saved);
+        await role.loadOrSave(saved);
 
-        saved = await role.saveOne({
+        saved = await role.loadOrSave({
             name: "role1",
             description: "description 1",
         });
