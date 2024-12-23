@@ -6,7 +6,6 @@ import {
     getRoleDAO,
     getUserDAO
 } from "../application/services/services.mjs";
-import {composeClearDataAccess} from "./fixtures/database-clear.mjs";
 import {PreferenceDAO} from "../models/PreferenceDAO.mjs";
 
 const {

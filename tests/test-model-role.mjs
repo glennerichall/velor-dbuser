@@ -24,13 +24,6 @@ describe('Role', () => {
 
     beforeEach(async ({services: s}) => {
         services = s;
-        const database = getDatabase(services);
-        const {
-            clearRoles,
-            clearAcl
-        } = composeClearDataAccess(database.schema);
-        await clearRoles(database);
-        await clearAcl(database);
         role = getServiceBinder(services).createInstance(RoleDAO)
     })
 

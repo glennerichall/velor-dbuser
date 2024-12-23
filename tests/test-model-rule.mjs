@@ -30,9 +30,6 @@ describe('Rule', () => {
 
     beforeEach(async ({services: s}) => {
         services = s;
-        const database = getDatabase(services);
-        const {clearAcl} = composeClearDataAccess(database.schema);
-        await clearAcl(database);
         rule = getRuleDAO(services);
     })
 

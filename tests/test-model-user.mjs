@@ -1,6 +1,4 @@
 import {setupTestContext} from "./fixtures/setupTestContext.mjs";
-import {composeClearDataAccess} from "./fixtures/database-clear.mjs";
-import {getDatabase} from "velor-database/application/services/services.mjs";
 import {
     getDataApiKeys,
     getDataUsers
@@ -192,19 +190,19 @@ describe('User', () => {
         expect(apiKeys[0].public_id).to.eq(apiKey.publicId);
     })
 
-    it('should get api keys', async () => {
-        let user = await userDao.saveOne(auth);
-        let apiKey = await userDao.createApiKey(user, 'my-pref', {foo: 'bar'});
-        let loaded = await userDao.getApiKey(user, {publicId: apiKey.publicId});
-        expect(loaded.id).to.eq(apiKey.id);
-    })
-
     it('should lose api key', async () => {
         let user = await userDao.saveOne(auth);
         let apiKey = await userDao.createApiKey(user, 'my-pref', {foo: 'bar'});
         await userDao.loseApiKey(user, apiKey);
         let loaded = await userDao.getApiKey(user, {publicId: apiKey.publicId});
         expect(loaded).to.be.null;
+    })
+
+    it('should get api keys', async () => {
+        let user = await userDao.saveOne(auth);
+        let apiKey = await userDao.createApiKey(user, 'my-pref', {foo: 'bar'});
+        let loaded = await userDao.getApiKey(user, {publicId: apiKey.publicId});
+        expect(loaded.id).to.eq(apiKey.id);
     })
 
     it('should save login event', async () => {

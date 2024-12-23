@@ -45,6 +45,7 @@ export function getAuthsSql(schema, tableNames = {}) {
         update ${schema}.${auths}
         set verified = true
         where id = $1
+        returning *
     `;
 
     const getAllAuthsSql = `
@@ -106,7 +107,7 @@ export function composeAuthsDataAccess(schema, tableNames = {}) {
 
     async function setUserVerifiedEmail(client, authId) {
         const res = await client.query(setUserVerifiedEmailSql, [authId]);
-        return res.rows.length === 1 ? res.rows[0] : null;
+        return res.rowCount === 1 ? res.rows[0] : null;
     }
 
     async function getAllAuths(client) {

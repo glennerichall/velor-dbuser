@@ -7,6 +7,7 @@ import {conformUser} from "../models/conform/conformUser.mjs";
 import {composeClearDataAccess} from "./fixtures/database-clear.mjs";
 import {getTableNames} from "../installation/defaultTableNames.mjs";
 import {composeRolesDataAccess} from "../database/roles.mjs";
+import {waitOnAsync} from "velor-utils/test/waitOnAsync.mjs";
 
 const {
     expect,
@@ -55,7 +56,7 @@ describe('database users', () => {
 
         ({
             insertAuth,
-            setUserVerifiedEmail
+            setUserVerifiedEmail,
         } = composeAuthsDataAccess(schema));
 
         ({createRole} = composeRolesDataAccess(schema));
@@ -114,8 +115,12 @@ describe('database users', () => {
 
         let {id} = await insertUser(client, auth.id);
 
-        await setUserVerifiedEmail(client, id);
         let user = await getPrimaryAuthByUserId(client, id);
+        expect(user).to.have.property('verified', false);
+
+        await setUserVerifiedEmail(client, id);
+        user = await getPrimaryAuthByUserId(client, id);
+
         expect(user).to.have.property('verified', true);
     })
 

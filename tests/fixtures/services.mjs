@@ -11,6 +11,7 @@ import {
 } from "../../models/events.mjs";
 import {getDatabase} from "velor-database/application/services/services.mjs";
 import {s_database} from "velor-database/application/services/serviceKeys.mjs";
+import {queryRaw} from "velor-database/database/queryRaw.mjs";
 
 export const services =
     async ({servicesOptions}, use) => {
@@ -20,7 +21,9 @@ export const services =
 
         // shadow the real database with a transaction
         let database = getDatabase(services);
+
         database = await database.beginTransact();
+
 
         getInstanceBinder(services)
             .setInstance(s_database, database);
