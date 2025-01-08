@@ -91,6 +91,11 @@ export class ApiKeyDAO extends DAOPolicy({
             throw new NotImplementedError();
         }
 
+        if(result) {
+            result = this.conformVO(result);
+            result = this.makeVO(result);
+        }
+
         return result;
     }
 }

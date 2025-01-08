@@ -136,9 +136,11 @@ describe('ApiKey', () => {
 
         expect(loaded.id).to.eq(saved.id);
 
-        await apiKey.delete({
+        let deleted = await apiKey.delete({
             publicId: saved.publicId,
         });
+
+        expect(deleted).to.deep.eq(loaded);
 
         loaded = await apiKey.loadOne({id: saved.id});
         expect(loaded).to.be.null;
