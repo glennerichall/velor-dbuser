@@ -5,7 +5,7 @@ import {
 } from "../application/services/dataServices.mjs";
 import {
     getAuthDAO,
-    getLoginDao,
+    getLoginDAO,
     getRoleDAO,
     getUserDAO
 } from "../application/services/services.mjs";
@@ -214,7 +214,7 @@ describe('User', () => {
 
         expect(login).to.not.be.undefined;
 
-        let logins = await getLoginDao(services).loadMany({authId: user.primaryAuthId});
+        let logins = await getLoginDAO(services).loadMany({authId: user.primaryAuthId});
         expect(logins).to.have.length(1);
     })
 
@@ -232,7 +232,7 @@ describe('User', () => {
 
         expect(logout).to.not.be.undefined;
 
-        let logins = await getLoginDao(services).loadMany({authId: user.primaryAuthId});
+        let logins = await getLoginDAO(services).loadMany({authId: user.primaryAuthId});
         expect(logins).to.have.length(2);
     })
 })

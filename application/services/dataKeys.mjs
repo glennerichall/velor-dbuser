@@ -6,3 +6,4 @@ export const DATA_API_KEYS = "apiKeys";
 export const DATA_ACL = "acl";
 export const DATA_ROLES = "roles";
 export const DATA_PREFERENCES = "preferences";
+export const DATA_FILES = "files";

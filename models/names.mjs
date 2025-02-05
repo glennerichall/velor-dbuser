@@ -6,3 +6,4 @@ export const AUTH = "auth";
 export const USER = "user";
 export const API_KEY = "apiKey";
 export const LOGIN = "login";
+export const FILE = "file";

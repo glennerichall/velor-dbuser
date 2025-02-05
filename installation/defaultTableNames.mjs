@@ -17,6 +17,8 @@ export const defaultTableNames = {
     userApiKeys: 'users_api_keys',
     authTokens: 'auth_tokens',
     tokens: 'tokens',
+    files: 'files',
+    filestatus : 'filestatus'
 };
 
 export function getTableNames(tableNames = {}) {

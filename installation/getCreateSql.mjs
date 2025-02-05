@@ -25,6 +25,8 @@ export async function getCreateSql(schema, tableNames = {}) {
         userApiKeys,
         authTokens,
         tokens,
+        files,
+        filestatus,
     } = getTableNames(tableNames);
 
     let createSql = await getFSAsync().readFile(path.join(__dirname,
@@ -49,5 +51,8 @@ export async function getCreateSql(schema, tableNames = {}) {
         .replaceAll('@{TABLE_API_KEYS_ACL}', apiKeysAcl)
         .replaceAll('@{TABLE_USERS_API_KEYS}', userApiKeys)
         .replaceAll('@{TABLE_AUTH_TOKENS}', authTokens)
-        .replaceAll('@{TABLE_TOKENS}', tokens);
+        .replaceAll('@{TABLE_TOKENS}', tokens)
+        .replaceAll('@{TABLE_FILES}', files)
+        .replaceAll('@{OBJ_FILE_STATUS}', filestatus)
+        ;
 }

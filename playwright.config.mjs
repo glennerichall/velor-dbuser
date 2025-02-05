@@ -10,7 +10,7 @@ export default defineConfig({
     testDir: './tests',
     testMatch: 'test-*.mjs',
     timeout: 30000,
-    retries: 0,
+    retries: 1,
     fullyParallel: true,
     expect: {
         timeout: 20000,

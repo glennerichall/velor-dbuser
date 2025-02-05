@@ -3,6 +3,7 @@ import {
     DATA_ACL,
     DATA_API_KEYS,
     DATA_AUTHS,
+    DATA_FILES,
     DATA_LOGINS,
     DATA_PREFERENCES,
     DATA_ROLES,
@@ -40,4 +41,8 @@ export function getDataRoles(services) {
 
 export function getDataPreferences(services) {
     return getDatabase(services)[DATA_PREFERENCES];
+}
+
+export function getDataFiles(services) {
+    return getDatabase(services)[DATA_FILES];
 }

@@ -11,6 +11,13 @@ create schema if not exists "@{SCHEMA}";
 CREATE EXTENSION if not exists pgcrypto;
 
 -------------------------------------------------
+-- User defined objects
+-------------------------------------------------
+create type "@{SCHEMA}".@{OBJ_FILE_STATUS} as enum ('created','uploading','uploaded','processing','ready','rejected');
+
+
+
+-------------------------------------------------
 -- Tables
 -------------------------------------------------
 create table if not exists "@{SCHEMA}".@{TABLE_ACCESS}
@@ -200,7 +207,18 @@ create table if not exists "@{SCHEMA}".@{TABLE_TOKENS}
         primary key(id)
 );
 
-
+create table if not exists "@{SCHEMA}".@{TABLE_FILES}
+(
+	"bucketname" text,
+	"creation" timestamp with time zone default CURRENT_TIMESTAMP,
+	"size" integer,
+	"id" serial not null,
+	"status" "@{SCHEMA}".@{OBJ_FILE_STATUS} default 'created'::"@{SCHEMA}".@{OBJ_FILE_STATUS},
+	"bucket" text,
+	"hash" text,
+	constraint files_pk
+        primary key(id)
+);
 
 -------------------------------------------------
 -- Foreign keys
@@ -349,5 +367,11 @@ create unique index if not exists user_auths_user_id_auth_id_uindex
 
 create unique index users_primary_auth_id_uindex
     on "@{SCHEMA}".@{TABLE_USERS} ("primary_auth_id");
+
+create unique index if not exists files_bucketname_key
+            on "@{SCHEMA}".@{TABLE_FILES} ("bucketname");
+
+create unique index if not exists files_id_uindex
+            on "@{SCHEMA}".@{TABLE_FILES} ("id");
 
 COMMIT;

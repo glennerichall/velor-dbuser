@@ -3,14 +3,13 @@ import {DAOPolicy} from "./BaseDAO.mjs";
 import {
     getApiKeyDAO,
     getAuthDAO,
-    getLoginDao,
+    getLoginDAO,
     getPreferenceDAO,
     getRoleDAO,
     getRuleDAO
 } from "../application/services/services.mjs";
 import {conformUser} from "./conform/conformUser.mjs";
 import {USER} from "./names.mjs";
-import {name} from "ejs";
 
 const userSym = Symbol(USER);
 
@@ -125,7 +124,7 @@ export class UserDAO extends DAOPolicy({
         }
         authId = user.primaryAuthId;
 
-        return getLoginDao(this).saveOne({
+        return getLoginDAO(this).saveOne({
             authId,
             ...info,
             type

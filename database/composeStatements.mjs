@@ -3,6 +3,7 @@ import {
     DATA_ACL,
     DATA_API_KEYS,
     DATA_AUTHS,
+    DATA_FILES,
     DATA_LOGINS,
     DATA_PREFERENCES,
     DATA_ROLES,
@@ -16,6 +17,7 @@ import {composeRolesDataAccess} from "./roles.mjs";
 import {composePreferencesDataAccess} from "./preferences.mjs";
 import {composeAccessDataAccess} from "./access.mjs";
 import {composeLoginDataAccess} from "./logins.mjs";
+import {composeFilesDataAccess} from "./files.mjs";
 
 export function composeStatements(schema, tableNames = {}) {
     return {
@@ -27,5 +29,6 @@ export function composeStatements(schema, tableNames = {}) {
         [DATA_PREFERENCES]: composePreferencesDataAccess(schema, tableNames),
         [DATA_ACCESS]: composeAccessDataAccess(schema, tableNames),
         [DATA_LOGINS]: composeLoginDataAccess(schema, tableNames),
+        [DATA_FILES]: composeFilesDataAccess(schema, tableNames),
     }
 }
