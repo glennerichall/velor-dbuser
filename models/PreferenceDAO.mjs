@@ -7,11 +7,10 @@ import {getDataPreferences} from "../application/services/dataServices.mjs";
 import {getUserDAO} from "../application/services/services.mjs";
 import {PREFERENCE} from "./names.mjs";
 
-const symbol = Symbol(PREFERENCE);
+const kPreference = Symbol(PREFERENCE);
 
 export class PreferenceDAO extends DAOPolicy({
-    symbol,
-    ...composeMutablePolicy(symbol),
+    ...composeMutablePolicy(kPreference),
     conformVO: conformPreference
 }) {
 

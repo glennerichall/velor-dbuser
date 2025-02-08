@@ -3,20 +3,22 @@ import {
     getDataUsers
 } from "../application/services/dataServices.mjs";
 import {conformRole} from "./conform/conformRole.mjs";
-import {DAOPolicy} from "./BaseDAO.mjs";
+import {
+    composeImmutablePolicy,
+    DAOPolicy
+} from "./BaseDAO.mjs";
 import {
     getRuleDAO,
     getUserDAO
 } from "../application/services/services.mjs";
 import {ROLE} from "./names.mjs";
 
-const roleSym = Symbol(ROLE);
+const kRole = Symbol(ROLE);
 
 
 export class RoleDAO extends DAOPolicy({
-    symbol: roleSym,
+    ...composeImmutablePolicy(kRole),
     conformVO: conformRole,
-    loadBeforeSave: true,
 }) {
     async selectOne(query) {
         let role;

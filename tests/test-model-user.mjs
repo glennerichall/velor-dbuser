@@ -235,4 +235,9 @@ describe('User', () => {
         let logins = await getLoginDAO(services).loadMany({authId: user.primaryAuthId});
         expect(logins).to.have.length(2);
     })
+
+    it('should freeze user', async () => {
+        let user = await userDao.saveOne(auth);
+        expect(Object.isFrozen(user)).to.be.true;
+    })
 })

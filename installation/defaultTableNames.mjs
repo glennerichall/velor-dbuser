@@ -18,7 +18,11 @@ export const defaultTableNames = {
     authTokens: 'auth_tokens',
     tokens: 'tokens',
     files: 'files',
-    filestatus : 'filestatus'
+    filestatus : 'filestatus',
+    fileOwners : 'file_owners',
+    filePropertiesInt : 'file_properties_int',
+    filePropertiesBool : 'file_properties_bool',
+    filePropertiesText : 'file_properties_text',
 };
 
 export function getTableNames(tableNames = {}) {

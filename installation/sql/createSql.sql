@@ -209,20 +209,75 @@ create table if not exists "@{SCHEMA}".@{TABLE_TOKENS}
 
 create table if not exists "@{SCHEMA}".@{TABLE_FILES}
 (
-	"bucketname" text,
-	"creation" timestamp with time zone default CURRENT_TIMESTAMP,
-	"size" integer,
 	"id" serial not null,
-	"status" "@{SCHEMA}".@{OBJ_FILE_STATUS} default 'created'::"@{SCHEMA}".@{OBJ_FILE_STATUS},
-	"bucket" text,
+	"bucket" text not null,
+	"bucketname" text not null default gen_random_uuid(),
+	"creation" timestamp with time zone default CURRENT_TIMESTAMP,
+	"status" "@{SCHEMA}".@{OBJ_FILE_STATUS} not null default 'created'::"@{SCHEMA}".@{OBJ_FILE_STATUS},
 	"hash" text,
+	"size" integer,
+	"filename" text,
 	constraint files_pk
         primary key(id)
+);
+
+create table if not exists "@{SCHEMA}".@{TABLE_FILE_OWNERS}
+(
+    "id" serial not null,
+    "file_id" integer,
+    "user_id" integer,
+    constraint file_owners_pk
+            primary key(id)
+);
+
+create table if not exists "@{SCHEMA}".@{TABLE_FILE_PROPERTIES_BOOL}
+(
+    "id" serial not null,
+    "file_id" integer,
+    "name" text not null,
+    "value" boolean,
+    constraint file_properties_bool_pk
+            primary key(id)
+);
+
+create table if not exists "@{SCHEMA}".@{TABLE_FILE_PROPERTIES_INT}
+(
+    "id" serial not null,
+    "file_id" integer,
+    "name" text not null,
+    "value" integer,
+    constraint file_properties_int_pk
+            primary key(id)
+);
+
+create table if not exists "@{SCHEMA}".@{TABLE_FILE_PROPERTIES_TEXT}
+(
+    "id" serial not null,
+    "file_id" integer,
+    "name" text not null,
+    "value" text,
+    constraint file_properties_text_pk
+            primary key(id)
 );
 
 -------------------------------------------------
 -- Foreign keys
 -------------------------------------------------
+alter table "@{SCHEMA}".@{TABLE_FILE_PROPERTIES_TEXT}
+    add constraint prop_text_file_fk
+        foreign key ("file_id") references "@{SCHEMA}".@{TABLE_FILES} ("id")
+            on delete cascade;
+
+alter table "@{SCHEMA}".@{TABLE_FILE_PROPERTIES_INT}
+    add constraint prop_int_file_fk
+        foreign key ("file_id") references "@{SCHEMA}".@{TABLE_FILES} ("id")
+            on delete cascade;
+
+alter table "@{SCHEMA}".@{TABLE_FILE_PROPERTIES_BOOL}
+    add constraint prop_bool_file_fk
+        foreign key ("file_id") references "@{SCHEMA}".@{TABLE_FILES} ("id")
+            on delete cascade;
+
 alter table "@{SCHEMA}".@{TABLE_API_KEYS_ACL}
     add constraint acl_fk
         foreign key ("acl_id") references "@{SCHEMA}".@{TABLE_ACL} ("id")
@@ -309,11 +364,30 @@ alter table "@{SCHEMA}".@{TABLE_USERS_API_KEYS}
         foreign key ("user_id") references "@{SCHEMA}".@{TABLE_USERS} ("id")
             on delete cascade;
 
+alter table "@{SCHEMA}".@{TABLE_FILE_OWNERS}
+    add constraint file_owner_users_fk
+        foreign key ("user_id") references "@{SCHEMA}".@{TABLE_USERS} ("id")
+            on delete cascade;
+
+alter table "@{SCHEMA}".@{TABLE_FILE_OWNERS}
+    add constraint file_owner_files_fk
+        foreign key ("file_id") references "@{SCHEMA}".@{TABLE_FILES} ("id")
+            on delete cascade;
+
 
 
 -------------------------------------------------
 -- Indexes
 -------------------------------------------------
+create unique index if not exists prop_int_file_key
+            on "@{SCHEMA}".@{TABLE_FILE_PROPERTIES_INT} ("name", "file_id");
+
+create unique index if not exists prop_text_file_key
+            on "@{SCHEMA}".@{TABLE_FILE_PROPERTIES_TEXT} ("name", "file_id");
+
+create unique index if not exists prop_bool_file_key
+            on "@{SCHEMA}".@{TABLE_FILE_PROPERTIES_BOOL} ("name", "file_id");
+
 create  index if not exists acl_category_index
             on "@{SCHEMA}".@{TABLE_ACL} ("category");
 

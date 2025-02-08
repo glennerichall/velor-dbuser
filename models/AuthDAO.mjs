@@ -1,13 +1,16 @@
 import {getDataAuths} from "../application/services/dataServices.mjs";
 import {conformAuth} from "./conform/conformAuth.mjs";
-import {DAOPolicy} from "./BaseDAO.mjs";
+import {
+    composeImmutablePolicy,
+    DAOPolicy
+} from "./BaseDAO.mjs";
 import {AUTH} from "./names.mjs";
 
-const authSym = Symbol(AUTH);
+const kAuth = Symbol(AUTH);
 
 export class AuthDAO extends DAOPolicy({
-    symbol: authSym,
-    conformVO: conformAuth
+    conformVO: conformAuth,
+    ...composeImmutablePolicy(kAuth),
 }) {
 
     async selectOne(query) {

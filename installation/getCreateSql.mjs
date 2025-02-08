@@ -27,6 +27,10 @@ export async function getCreateSql(schema, tableNames = {}) {
         tokens,
         files,
         filestatus,
+        fileOwners,
+        filePropertiesBool,
+        filePropertiesText,
+        filePropertiesInt
     } = getTableNames(tableNames);
 
     let createSql = await getFSAsync().readFile(path.join(__dirname,
@@ -54,5 +58,9 @@ export async function getCreateSql(schema, tableNames = {}) {
         .replaceAll('@{TABLE_TOKENS}', tokens)
         .replaceAll('@{TABLE_FILES}', files)
         .replaceAll('@{OBJ_FILE_STATUS}', filestatus)
+        .replaceAll('@{TABLE_FILE_OWNERS}', fileOwners)
+        .replaceAll('@{TABLE_FILE_PROPERTIES_TEXT}', filePropertiesText)
+        .replaceAll('@{TABLE_FILE_PROPERTIES_INT}', filePropertiesInt)
+        .replaceAll('@{TABLE_FILE_PROPERTIES_BOOL}', filePropertiesBool)
         ;
 }

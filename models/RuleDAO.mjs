@@ -5,7 +5,10 @@ import {
     getDataUsers
 } from "../application/services/dataServices.mjs";
 import {conformRule} from "./conform/conformRule.mjs";
-import {DAOPolicy,} from "./BaseDAO.mjs";
+import {
+    composeImmutablePolicy,
+    DAOPolicy,
+} from "./BaseDAO.mjs";
 import {
     getApiKeyDAO,
     getRoleDAO,
@@ -13,12 +16,11 @@ import {
 } from "../application/services/services.mjs";
 import {RULE} from "./names.mjs";
 
-const ruleSym = Symbol(RULE);
+const kRule = Symbol(RULE);
 
 export class RuleDAO extends DAOPolicy({
     conformVO: conformRule,
-    symbol: ruleSym,
-    loadBeforeSave: true,
+    ...composeImmutablePolicy(kRule)
 }) {
 
     async selectOne(query) {

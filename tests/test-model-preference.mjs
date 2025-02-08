@@ -184,4 +184,16 @@ describe('Preferences', () => {
         expect(loaded[0].value).to.have.property('foo', 'bar');
     })
 
+    it('should not freeze preferences', async () => {
+        let saved = await preference.saveOne({
+            user,
+            name: 'my-pref2',
+            value: {
+                'allow-auto-upload': false,
+                'foo': 'baz'
+            }
+        });
+
+        expect(Object.isFrozen(saved)).to.be.false;
+    })
 })

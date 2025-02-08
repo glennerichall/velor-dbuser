@@ -41,7 +41,25 @@ describe('Login', () => {
 
         expect(result).to.have.property('authId', data.authId);
         expect(result).to.have.property('type', 'login');
+    })
 
 
+    it('should freeze login', async () => {
+        let auth = await getAuthDAO(services).saveOne({
+            profileId: 'munchies',
+            provider: 'token',
+            verified: true,
+        });
+
+        let data = {
+            authId: auth.id,
+            type: 'login',
+            fingerprint: '12345',
+            ip: '127.0.0.1'
+        };
+
+        let saved = await loginDao.saveOne(data);
+
+        expect(Object.isFrozen(saved)).to.be.true;
     })
 })

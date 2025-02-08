@@ -96,7 +96,7 @@ describe('Auth', () => {
     it('should not save auth twice', async () => {
         let saved = await auth.saveOne(profile);
         expect(auth.isVO(saved)).to.be.true;
-        expect(await auth.canSave(saved)).to.be.false;
+        expect(await auth.canInsert(saved)).to.be.false;
         saved = await auth.saveOne(saved);
         expect(auth.isVO(saved)).to.be.true;
     })

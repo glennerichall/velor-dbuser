@@ -1,14 +1,17 @@
-import {DAOPolicy} from "./BaseDAO.mjs";
+import {
+    composeImmutablePolicy,
+    DAOPolicy
+} from "./BaseDAO.mjs";
 import {LOGIN} from "./names.mjs";
 import {conformLogin} from "./conform/conformLogin.mjs";
 import {getDataLogins} from "../application/services/dataServices.mjs";
 import {getAuthDAO} from "../application/services/services.mjs";
 
-const loginSymbol = Symbol(LOGIN);
+const kLogin = Symbol(LOGIN);
 
 export class LoginDao extends DAOPolicy({
-    symbol: loginSymbol,
-    conformVO: conformLogin
+    conformVO: conformLogin,
+    ...composeImmutablePolicy(kLogin)
 }) {
 
     insertOne(data) {

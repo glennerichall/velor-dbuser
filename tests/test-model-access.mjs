@@ -54,4 +54,20 @@ describe('Access', () => {
         expect(all).to.have.length(2);
 
     })
+
+    it('should freeze access', async () => {
+        let data = {
+            ip: '127.0.0.1',
+            url: '/foo/bar',
+            method: 'GET',
+            fingerprint: '123456',
+            backendVersion: '1.3.4',
+            frontendVersion: '1.3.4',
+            userId: null,
+            loggedIn: false
+        };
+
+        let saved = await accessDao.saveOne(data);
+        expect(Object.isFrozen(saved)).to.be.true;
+    })
 })

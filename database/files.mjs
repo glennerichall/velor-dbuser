@@ -1,6 +1,19 @@
 import {getTableNames} from "../installation/defaultTableNames.mjs";
 import {tryInsertUnique} from "velor-database/database/tryInsertUnique.mjs";
 
+// export function buildWhereClause(filter, tableName) {
+//     let clauses = [];
+//     let index = 1;
+//     for (let key in filter) {
+//         let value = filter[key];
+//         if (value !== undefined) {
+//             clauses.push(`(${tableName}.${key} = \$${index})\n`);
+//             index++;
+//         }
+//     }
+//     return clauses.join(' AND ');
+// }
+
 export function getFilesSql(schema, tableNames = {}) {
     const {
         files,
@@ -12,51 +25,135 @@ export function getFilesSql(schema, tableNames = {}) {
         where bucketname = $1
     `;
 
-    const queryFilesByHashSql = `
+    const queryFileByIdSql = `
         select * from ${schema}.${files}
-        where hash = $1
+        where id = $1
     `;
 
-    const createFile1Sql = `
+    const createFileSql = `
         insert into ${schema}.${files}
-        (bucket, bucketname)
-        values ($1, $2)
+        (bucket, bucketname, status, size, hash, creation)
+        values (
+            $1, 
+            COALESCE($2, gen_random_uuid()::text), 
+            COALESCE($3, 'created'::"${schema}".${filestatus}), 
+            $4,
+            $5,
+            COALESCE($6, CURRENT_TIMESTAMP))
         returning *
     `;
 
-    const createFile2Sql = `
-        insert into ${schema}.${files}
-        (bucket, bucketname)
-        values ($1, gen_random_uuid())
-        returning *
-    `;
-
-    const updateSetUploadedSql = `
+    const updateFileSql = `
         update ${schema}.${files}
-        set status = 'uploaded'::${schema}.${filestatus}
-        where bucketname = $1
-            and status = 'created'::${schema}.${filestatus}
-        returning *
-    `;
-
-    const updateSetDatetimeSql = `
-        update ${schema}.${files}
-        set creation = $2
-        where bucketname = $1
-    `;
-
-    const updateSetStatusSql = `
-        update ${schema}.${files}
-        set status = $3::${schema}.${filestatus},
+        set status = COALESCE($3::${schema}.${filestatus}, status),
             size   = COALESCE($2, size),
-            hash   = COALESCE($4, hash)
+            hash   = COALESCE($4, hash),
+            creation = COALESCE($5, creation)
         where bucketname = $1
+        returning *
     `;
 
-    const queryFilesForAllSql = `
-        select * from ${schema}.${files}
-        where bucket = $1
-    `;
+    const queryFilesForAllSql = ({
+                                     bucket, hash,
+                                     minSize, maxSize,
+                                     minDate, maxDate,
+                                     status, filename,
+                                     bucketname,
+                                     sort = 'id asc',
+                                     page, perPage,
+                                 } = {}) => {
+        if (filename) {
+            filename = "%" + filename + "%";
+        }
+
+        if (bucketname) {
+            bucketname = "%" + bucketname + "%";
+        }
+
+        if (status !== null && status !== undefined) {
+            if (!Array.isArray(status)) {
+                status = [status];
+            }
+        }
+
+        let args = [];
+        let where = [];
+        let select = `select * from ${schema}.${files} f`;
+        let orderBy = '';
+        let offset = '';
+        let limit = '';
+
+        if (sort) {
+            orderBy = `order by ${sort}`;
+        }
+
+        if (bucket) {
+            args.push(bucket);
+            where.push(` f.bucket = \$${args.length}`);
+        }
+
+        if (hash) {
+            args.push(hash);
+            where.push(`f.hash = \$${args.length}`);
+        }
+
+        if (minSize) {
+            args.push(minSize);
+            where.push(`f.size >= \$${args.length}`);
+        }
+
+        if (maxSize) {
+            args.push(maxSize);
+            where.push(`f.size <= \$${args.length}`);
+        }
+
+        if (minDate) {
+            args.push(minDate);
+            where.push(`f.creation >= \$${args.length}`);
+        }
+
+        if (maxDate) {
+            args.push(maxDate);
+            where.push(`f.creation >= \$${args.length}`);
+        }
+
+        if (status) {
+            args.push(status);
+            where.push(`f.status = ANY(\$${args.length}::${schema}.${filestatus}[])`);
+        }
+
+        if (filename) {
+            args.push(filename);
+            where.push(`f.filename ILIKE \$${args.length}`);
+        }
+
+        if (bucketname) {
+            args.push(bucketname);
+            where.push(`f.bucketname ILIKE \$${args.length}`);
+        }
+
+        where = "where " + where.join('\nAND ');
+
+        if (page !== null && page !== undefined &&
+            perPage !== null && perPage !== undefined) {
+
+            args.push(perPage);
+            limit = `limit \$${args.length}`;
+
+            args.push((page - 1) * perPage);
+            offset = `offset \$${args.length}`;
+        }
+
+        return {
+            select,
+            where,
+            orderBy,
+            limit,
+            offset,
+            args
+        };
+
+    };
 
     const deleteByBucketnameSql = `
         delete from ${schema}.${files}
@@ -105,12 +202,8 @@ export function getFilesSql(schema, tableNames = {}) {
     `;
 
     return {
-        queryFilesByHashSql,
-        createFile1Sql,
-        createFile2Sql,
-        updateSetUploadedSql,
-        updateSetDatetimeSql,
-        updateSetStatusSql,
+        createFileSql,
+        updateFileSql,
         queryFilesForAllSql,
         deleteByBucketnameSql,
         deleteAllFilesSql,
@@ -119,18 +212,15 @@ export function getFilesSql(schema, tableNames = {}) {
         deleteByBucketnamesSql,
         keepByBucketnamesSql,
         queryFileByBucketnameSql,
+        queryFileByIdSql,
 
     };
 }
 
 export function composeFilesDataAccess(schema, tableNames = {}) {
     const {
-        queryFilesByHashSql,
-        createFile1Sql,
-        createFile2Sql,
-        updateSetUploadedSql,
-        updateSetDatetimeSql,
-        updateSetStatusSql,
+        createFileSql,
+        updateFileSql,
         queryFilesForAllSql,
         deleteByBucketnameSql,
         deleteAllFilesSql,
@@ -139,49 +229,55 @@ export function composeFilesDataAccess(schema, tableNames = {}) {
         deleteByBucketnamesSql,
         keepByBucketnamesSql,
         queryFileByBucketnameSql,
+        queryFileByIdSql,
 
     } = getFilesSql(schema, tableNames);
+
+    async function queryFileById(client, id) {
+        let res = await client.query(queryFileByIdSql, [id]);
+        return res.rowCount >= 1 ? res.rows[0] : null;
+    }
 
     async function queryFileByBucketname(client, bucketname) {
         let res = await client.query(queryFileByBucketnameSql, [bucketname]);
         return res.rowCount >= 1 ? res.rows[0] : null;
     }
 
-    async function queryFilesByHash(client, hash) {
-        const res = await client.query(queryFilesByHashSql, [hash]);
-        return res.rows;
-    }
-
-    async function createFile(client, bucket, bucketname) {
+    async function createFile(client, bucket, bucketname, status, size, hash, creation) {
+        const args = [bucket, bucketname, status, size, hash, creation];
         if (bucketname) {
-            const res = await client
-                .query(createFile1Sql, [bucket, bucketname]);
+            const res = await client.query(createFileSql, args);
             return res.rowCount >= 1 ? res.rows[0] : null;
         }
-        return tryInsertUnique(client, createFile2Sql, [bucket]);
+        return tryInsertUnique(client, createFileSql, args);
     }
 
-    async function updateSetUploaded(client, bucketname) {
+    async function updateFileByBucketname(client, bucketname, size, hash, status, creation) {
         const res = await client
-            .query(updateSetUploadedSql, [bucketname]);
+            .query(updateFileSql, [bucketname, size, status, hash, creation]);
         return res.rowCount >= 1 ? res.rows[0] : null;
     }
 
-    async function updateSetDatetime(client, bucketname, creation) {
-        const res = await client
-            .query(updateSetDatetimeSql, [bucketname, creation]);
-        return res.rowCount;
-    }
+    async function queryFilesForAll(client, query = {}) {
 
-    async function updateSetStatus(client, bucketname, size, hash, status) {
-        const res = await client
-            .query(updateSetStatusSql, [bucketname, size, status, hash]);
-        return res.rowCount;
-    }
+        const {
+            select,
+            where,
+            orderBy,
+            limit,
+            offset,
+            args
+        } = queryFilesForAllSql(query)
 
-    async function queryFilesForAll(client, bucket) {
-        const res = await client
-            .query(queryFilesForAllSql, [bucket]);
+        let querySql = `
+            ${select}
+            ${where}
+            ${orderBy}
+            ${offset}
+            ${limit}
+        `;
+
+        const res = await client.query(querySql, args);
         return res.rows;
     }
 
@@ -220,22 +316,12 @@ export function composeFilesDataAccess(schema, tableNames = {}) {
         return res.rowCount;
     }
 
-    async function updateSetDone(client, bucketname, size, hash) {
-        return updateSetStatus(client, bucketname, size, hash, 'ready');
-    }
-
-    async function updateSetRejected(client, bucketname, size, hash) {
-        return updateSetStatus(client, bucketname, size, hash, 'rejected');
-    }
-
 
     return {
         queryFileByBucketname,
-        queryFilesByHash,
+        queryFileById,
         createFile,
-        updateSetUploaded,
-        updateSetDatetime,
-        updateSetStatus,
+        updateFileByBucketname,
         queryFilesForAll,
         deleteByBucketname,
         deleteAllFiles,
@@ -243,7 +329,5 @@ export function composeFilesDataAccess(schema, tableNames = {}) {
         queryForUnprocessed,
         deleteByBucketnames,
         keepByBucketnames,
-        updateSetDone,
-        updateSetRejected,
     };
 }

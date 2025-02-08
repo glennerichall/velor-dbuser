@@ -3,7 +3,10 @@ import {
     getDataUsers
 } from "../application/services/dataServices.mjs";
 import {conformApiKey} from "./conform/conformApiKey.mjs";
-import {DAOPolicy} from "./BaseDAO.mjs";
+import {
+    composeImmutablePolicy,
+    DAOPolicy
+} from "./BaseDAO.mjs";
 import {
     getApiKeyDAO,
     getRuleDAO,
@@ -13,11 +16,11 @@ import {services} from "../tests/fixtures/services.mjs";
 import {NotImplementedError} from "velor-utils/utils/errors/NotImplementedError.mjs";
 import {API_KEY} from "./names.mjs";
 
-const apiKeySymbol = Symbol(API_KEY);
+const kApiKey = Symbol(API_KEY);
 
 export class ApiKeyDAO extends DAOPolicy({
-    symbol: apiKeySymbol,
-    conformVO: conformApiKey
+    conformVO: conformApiKey,
+    ...composeImmutablePolicy(kApiKey)
 }) {
 
     async selectOne(query) {

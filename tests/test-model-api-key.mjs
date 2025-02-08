@@ -145,4 +145,10 @@ describe('ApiKey', () => {
         loaded = await apiKey.loadOne({id: saved.id});
         expect(loaded).to.be.null;
     })
+
+
+    it('should freeze api key', async () => {
+        let saved = await apiKey.saveOne({name: 'an api key'});
+        expect(Object.isFrozen(saved)).to.be.true;
+    })
 })

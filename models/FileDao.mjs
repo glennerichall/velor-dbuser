@@ -1,14 +1,16 @@
-import {DAOPolicy} from "./BaseDAO.mjs";
+import {
+    composeMutablePolicy,
+    DAOPolicy
+} from "./BaseDAO.mjs";
 import {FILE,} from "./names.mjs";
 import {conformFile} from "./conform/conformFile.mjs";
 import {getDataFiles} from "../application/services/dataServices.mjs";
 
-const fileSym = Symbol(FILE);
+const kFile = Symbol(FILE);
 
 export class FileDAO extends DAOPolicy({
-    symbol: fileSym,
+    ...composeMutablePolicy(kFile),
     conformVO: conformFile,
-    loadBeforeSave: true,
 }) {
     async selectOne(query) {
         let file;
@@ -19,16 +21,24 @@ export class FileDAO extends DAOPolicy({
     }
 
     async selectMany(query) {
-        let files;
-        if (query.bucket) {
-            files = await getDataFiles(this).queryFilesForAll(query.bucket);
-        } else if (query.hash) {
-            files = await getDataFiles(this).queryFilesByHash(query.hash);
-        }
+        let files = await getDataFiles(this).queryFilesForAll(query);
         return files;
     }
 
-    async insertOne(vo) {
-       return await getDataFiles(this).createFile(vo.bucket, vo.bucketname);
+    async insertOne(data) {
+        return await getDataFiles(this).createFile(
+            data.bucket,
+            data.bucketname, // generate random uuid if not provided
+            data.status,     // default to ::created
+            data.size,       // default to null
+            data.hash,       // default to null
+            data.creation    // default to current timestamp
+        );
+    }
+
+    async updateOne(vo) {
+        return await getDataFiles(this).updateFileByBucketname(vo.bucketname,
+            vo.size, vo.hash,
+            vo.status, vo.creation);
     }
 }

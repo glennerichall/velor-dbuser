@@ -13,7 +13,7 @@ const {
 describe('database files', () => {
 
     let createFile, queryFileByBucketname,
-        updateSetStatus, queryFilesForAll,
+        updateFileByBucketname, queryFilesForAll,
         deleteByBucketname;
 
     beforeEach(async ({database}) => {
@@ -21,7 +21,7 @@ describe('database files', () => {
         ({
             createFile,
             queryFileByBucketname,
-            updateSetStatus,
+            updateFileByBucketname,
             queryFilesForAll,
             deleteByBucketname
         } = composeFilesDataAccess(schema));
@@ -106,7 +106,7 @@ describe('database files', () => {
         expect(createFile(client, bucket, bucketname)).to.be.rejected;
     })
 
-    test('should set file status', async ({database}) => {
+    test('should update file', async ({database}) => {
         const {
             client,
         } = database;
@@ -117,7 +117,7 @@ describe('database files', () => {
         let hash = '12345';
 
         let {bucketname} = await createFile(client, bucket);
-        let ok = await updateSetStatus(client, bucketname, size, hash, status);
+        let ok = await updateFileByBucketname(client, bucketname, size, hash, status);
         expect(!!ok).to.be.true;
 
         let file = await queryFileByBucketname(client, bucketname);
@@ -131,7 +131,78 @@ describe('database files', () => {
         expect(file).to.have.property('hash', hash);
     })
 
-    test('should get all files from bucket', async({database})=> {
+    test('should update file status', async ({database}) => {
+        const {
+            client,
+        } = database;
+
+        let bucket = 'a-bucket';
+        let status = 'uploaded';
+
+        let {bucketname} = await createFile(client, bucket);
+        let ok = await updateFileByBucketname(client, bucketname, undefined, undefined, status);
+        expect(!!ok).to.be.true;
+
+        let file = await queryFileByBucketname(client, bucketname);
+
+        expect(file).to.have.property('bucketname', bucketname);
+        expect(file).to.have.property('bucket', bucket);
+        expect(file.datetime).to.not.be.null;
+
+        expect(file).to.have.property('creation');
+        expect(file).to.have.property('status', 'uploaded');
+        expect(file).to.have.property('size', null);
+        expect(file).to.have.property('hash', null);
+    })
+
+    test('should update file hash', async ({database}) => {
+        const {
+            client,
+        } = database;
+
+        let bucket = 'a-bucket';
+
+        let {bucketname} = await createFile(client, bucket);
+        let ok = await updateFileByBucketname(client, bucketname, undefined, '123');
+        expect(!!ok).to.be.true;
+
+        let file = await queryFileByBucketname(client, bucketname);
+
+        expect(file).to.have.property('bucketname', bucketname);
+        expect(file).to.have.property('bucket', bucket);
+        expect(file.creation).to.not.be.null;
+        expect(file.creation).to.not.be.undefined;
+
+        expect(file).to.have.property('creation');
+        expect(file).to.have.property('status', 'created');
+        expect(file).to.have.property('size', null);
+        expect(file).to.have.property('hash', '123');
+    })
+
+    test('should update file size', async ({database}) => {
+        const {
+            client,
+        } = database;
+
+        let bucket = 'a-bucket';
+
+        let {bucketname, creation} = await createFile(client, bucket);
+        let ok = await updateFileByBucketname(client, bucketname, 123);
+        expect(!!ok).to.be.true;
+
+        let file = await queryFileByBucketname(client, bucketname);
+
+        expect(file).to.have.property('bucketname', bucketname);
+        expect(file).to.have.property('bucket', bucket);
+        expect(file.creation.getTime()).to.eq(creation.getTime());
+
+        expect(file).to.have.property('creation');
+        expect(file).to.have.property('status', 'created');
+        expect(file).to.have.property('size', 123);
+        expect(file).to.have.property('hash', null);
+    })
+
+    test('should get all files from bucket', async ({database}) => {
         const {
             client,
         } = database;
@@ -142,9 +213,9 @@ describe('database files', () => {
         await createFile(client, 'bucket-2');
         await createFile(client, 'bucket-2');
 
-        let files = await queryFilesForAll(client, 'bucket-2');
+        let files = await queryFilesForAll(client, {bucket: 'bucket-2'});
         expect(files).to.have.length(3);
-        for(let file of files) {
+        for (let file of files) {
             expect(file).to.have.property('bucketname');
             expect(file.bucketname).to.not.be.undefined;
             expect(file).to.have.property('bucket', 'bucket-2');
@@ -157,7 +228,7 @@ describe('database files', () => {
         }
     })
 
-    test('should delete file by bucketname', async({database})=> {
+    test('should delete file by bucketname', async ({database}) => {
         const {
             client,
         } = database;
@@ -170,12 +241,16 @@ describe('database files', () => {
 
         await deleteByBucketname(client, bucketname);
 
-        let files = await queryFilesForAll(client, bucket);
+        let files = await queryFilesForAll(client, {bucket});
 
         expect(files).to.have.length(1);
 
         let file = files[0];
         expect(file).to.have.property('bucketname');
         expect(file.bucketname).to.not.eq(bucketname);
+    })
+
+    test('should ', async ({database}) => {
+
     })
 })

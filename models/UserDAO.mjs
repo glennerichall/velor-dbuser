@@ -1,5 +1,8 @@
 import {getDataUsers} from "../application/services/dataServices.mjs";
-import {DAOPolicy} from "./BaseDAO.mjs";
+import {
+    composeImmutablePolicy,
+    DAOPolicy
+} from "./BaseDAO.mjs";
 import {
     getApiKeyDAO,
     getAuthDAO,
@@ -11,12 +14,11 @@ import {
 import {conformUser} from "./conform/conformUser.mjs";
 import {USER} from "./names.mjs";
 
-const userSym = Symbol(USER);
+const kUser = Symbol(USER);
 
 export class UserDAO extends DAOPolicy({
-    symbol: userSym,
     conformVO: conformUser,
-    loadBeforeSave: true,
+    ...composeImmutablePolicy(kUser)
 }) {
 
     async selectOne(query) {

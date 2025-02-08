@@ -16,5 +16,17 @@ alter table "@{SCHEMA}".@{TABLE_ROLE_ACL}
 alter table "@{SCHEMA}".@{TABLE_ROLE_ACL}
     rename column "acl" to acl_id;
 
+alter table "@{SCHEMA}".@{TABLE_FILES}
+    add column "filename" text;
+
+-------------------------------------
+-- promote filename to table files from old gcode
+-------------------------------------
+UPDATE "@{SCHEMA}".@{TABLE_FILES} f
+SET filename = g.filename
+FROM "@{SCHEMA}".gcode g
+WHERE f.id = g.file_id;
+
+
 create unique index users_primary_auth_id_uindex
     on "@{SCHEMA}".@{TABLE_USERS} ("primary_auth_id");
