@@ -6,6 +6,7 @@ import {
 import {
     getApiKeyDAO,
     getAuthDAO,
+    getFileDAO,
     getLoginDAO,
     getPreferenceDAO,
     getRoleDAO,
@@ -135,5 +136,12 @@ export class UserDAO extends DAOPolicy({
 
     async saveLogoutEvent(user, info) {
         return this.saveLoginEvent(user, info, 'logout');
+    }
+
+    async getFiles(user, query) {
+        return getFileDAO(this).loadMany({
+            user,
+            ...query
+        });
     }
 }

@@ -7,6 +7,7 @@ import {
     DATA_LOGINS,
     DATA_PREFERENCES,
     DATA_ROLES,
+    DATA_USER_FILES,
     DATA_USERS
 } from "../application/services/dataKeys.mjs";
 import {composeAuthsDataAccess} from "./auths.mjs";
@@ -18,6 +19,7 @@ import {composePreferencesDataAccess} from "./preferences.mjs";
 import {composeAccessDataAccess} from "./access.mjs";
 import {composeLoginDataAccess} from "./logins.mjs";
 import {composeFilesDataAccess} from "./files.mjs";
+import {composeFileOwnersDataAccess} from "./fileOwners.mjs";
 
 export function composeStatements(schema, tableNames = {}) {
     return {
@@ -30,5 +32,6 @@ export function composeStatements(schema, tableNames = {}) {
         [DATA_ACCESS]: composeAccessDataAccess(schema, tableNames),
         [DATA_LOGINS]: composeLoginDataAccess(schema, tableNames),
         [DATA_FILES]: composeFilesDataAccess(schema, tableNames),
+        [DATA_USER_FILES]: composeFileOwnersDataAccess(schema, tableNames),
     }
 }

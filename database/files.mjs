@@ -1,19 +1,6 @@
 import {getTableNames} from "../installation/defaultTableNames.mjs";
 import {tryInsertUnique} from "velor-database/database/tryInsertUnique.mjs";
 
-// export function buildWhereClause(filter, tableName) {
-//     let clauses = [];
-//     let index = 1;
-//     for (let key in filter) {
-//         let value = filter[key];
-//         if (value !== undefined) {
-//             clauses.push(`(${tableName}.${key} = \$${index})\n`);
-//             index++;
-//         }
-//     }
-//     return clauses.join(' AND ');
-// }
-
 export function getFilesSql(schema, tableNames = {}) {
     const {
         files,
@@ -84,12 +71,12 @@ export function getFilesSql(schema, tableNames = {}) {
         let limit = '';
 
         if (sort) {
-            orderBy = `order by ${sort}`;
+            orderBy = `order by f.${sort}`;
         }
 
         if (bucket) {
             args.push(bucket);
-            where.push(` f.bucket = \$${args.length}`);
+            where.push(`f.bucket = \$${args.length}`);
         }
 
         if (hash) {
@@ -132,7 +119,11 @@ export function getFilesSql(schema, tableNames = {}) {
             where.push(`f.bucketname ILIKE \$${args.length}`);
         }
 
-        where = "where " + where.join('\nAND ');
+        if(where.length) {
+            where = "where " + where.join('\nAND ');
+        } else {
+            where = '';
+        }
 
         if (page !== null && page !== undefined &&
             perPage !== null && perPage !== undefined) {

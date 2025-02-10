@@ -7,6 +7,7 @@ import {
     DATA_LOGINS,
     DATA_PREFERENCES,
     DATA_ROLES,
+    DATA_USER_FILES,
     DATA_USERS,
 } from "./dataKeys.mjs";
 import {getDatabase} from "velor-database/application/services/services.mjs";
@@ -45,4 +46,8 @@ export function getDataPreferences(services) {
 
 export function getDataFiles(services) {
     return getDatabase(services)[DATA_FILES];
+}
+
+export function getDataUserFiles(services) {
+    return getDatabase(services)[DATA_USER_FILES];
 }
