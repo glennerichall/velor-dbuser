@@ -79,5 +79,8 @@ export class FileDAO extends DAOPolicy({
         return await getDataFiles(this).deleteByBucketname(bucketname);
     }
 
-
+    async getBuckets() {
+        let buckets = await getDataFiles(this).listBuckets();
+        return buckets.map(x => x.bucket);
+    }
 }

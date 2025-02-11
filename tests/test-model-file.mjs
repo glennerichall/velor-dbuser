@@ -286,6 +286,23 @@ describe('File', () => {
         expect(files[0].bucketname).to.not.eq(bucketname);
     })
 
+    it('should list unique buckets', async () => {
+        await file.saveOne({bucket: 'a'});
+        await file.saveOne({bucket: 'a'});
+        await file.saveOne({bucket: 'a'});
+        await file.saveOne({bucket: 'b'});
+        await file.saveOne({bucket: 'b'});
+        await file.saveOne({bucket: 'c'});
+
+        let buckets  = await file.getBuckets();
+
+        expect(buckets).to.have.length(3);
+
+        expect(buckets).to.include('a');
+        expect(buckets).to.include('b');
+        expect(buckets).to.include('c');
+    })
+
     it('should not freeze file', async () => {
         let bucket = 'a-bucket';
         let saved = await file.saveOne({bucket});

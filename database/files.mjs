@@ -315,6 +315,11 @@ export function composeFilesDataAccess(schema, tableNames = {}) {
         return res.rowCount;
     }
 
+    async function listBuckets(client) {
+        const res = await client.query(queryBuckets);
+        return res.rows;
+    }
+
 
     return {
         queryFileByBucketname,
@@ -328,5 +333,6 @@ export function composeFilesDataAccess(schema, tableNames = {}) {
         queryForUnprocessed,
         deleteByBucketnames,
         keepByBucketnames,
+        listBuckets
     };
 }
