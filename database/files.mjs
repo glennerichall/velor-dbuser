@@ -66,6 +66,7 @@ export function getFilesSql(schema, tableNames = {}) {
         let args = [];
         let where = [];
         let select = `select * from ${schema}.${files} f`;
+        let remove = `delete from ${schema}.${files} f`;
         let orderBy = '';
         let offset = '';
         let limit = '';
@@ -137,6 +138,7 @@ export function getFilesSql(schema, tableNames = {}) {
 
         return {
             select,
+            remove,
             where,
             orderBy,
             limit,
@@ -152,7 +154,7 @@ export function getFilesSql(schema, tableNames = {}) {
         returning *
     `;
 
-    const deleteAllFilesSql = `
+    const deleteAllFilesForBucketSql = `
         delete
        from ${schema}.${files}
        where bucket = $1
@@ -203,7 +205,7 @@ export function getFilesSql(schema, tableNames = {}) {
         updateFileSql,
         queryFilesForAllSql,
         deleteByBucketnameSql,
-        deleteAllFilesSql,
+        deleteAllFilesForBucketSql,
         deleteOldFilesSql,
         queryForUnprocessedSql,
         deleteByBucketnamesSql,
@@ -221,7 +223,7 @@ export function composeFilesDataAccess(schema, tableNames = {}) {
         updateFileSql,
         queryFilesForAllSql,
         deleteByBucketnameSql,
-        deleteAllFilesSql,
+        deleteAllFilesForBucketSql,
         deleteOldFilesSql,
         queryForUnprocessedSql,
         deleteByBucketnamesSql,
@@ -286,9 +288,25 @@ export function composeFilesDataAccess(schema, tableNames = {}) {
         return res.rowCount >= 1 ? res.rows[0] : null;
     }
 
-    async function deleteAllFiles(client, bucket) {
+    async function deleteAllFilesForBucket(client, bucket) {
         const res = await client
-            .query(deleteAllFilesSql, [bucket]);
+            .query(deleteAllFilesForBucketSql, [bucket]);
+        return res.rowCount;
+    }
+
+    async function deleteAllFiles(client, query) {
+        const {
+            remove,
+            where,
+            args
+        } = queryFilesForAllSql(query);
+
+        let querySql = `
+            ${remove}
+            ${where}
+        `;
+
+        const res = await client.query(querySql, args);
         return res.rowCount;
     }
 
@@ -328,6 +346,7 @@ export function composeFilesDataAccess(schema, tableNames = {}) {
         updateFileByBucketname,
         queryFilesForAll,
         deleteByBucketname,
+        deleteAllFilesForBucket,
         deleteAllFiles,
         deleteOldFiles,
         queryForUnprocessed,
