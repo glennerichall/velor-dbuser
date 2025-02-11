@@ -267,6 +267,25 @@ describe('File', () => {
         expect(files).to.have.length(0);
     })
 
+    it('should delete file', async () => {
+        let bucket = 'a-bucket';
+        let bucketname = 'a-bucketname';
+
+        await file.saveOne({
+            bucket,
+            bucketname
+        });
+
+        await file.saveOne({bucket});
+
+        let deleted = await file.deleteOne(bucketname);
+        expect(deleted).to.have.property('bucketname', bucketname);
+
+        let files = await file.loadMany();
+        expect(files).to.have.length(1);
+        expect(files[0].bucketname).to.not.eq(bucketname);
+    })
+
     it('should not freeze file', async () => {
         let bucket = 'a-bucket';
         let saved = await file.saveOne({bucket});

@@ -119,7 +119,7 @@ export function getFilesSql(schema, tableNames = {}) {
             where.push(`f.bucketname ILIKE \$${args.length}`);
         }
 
-        if(where.length) {
+        if (where.length) {
             where = "where " + where.join('\nAND ');
         } else {
             where = '';
@@ -149,6 +149,7 @@ export function getFilesSql(schema, tableNames = {}) {
     const deleteByBucketnameSql = `
         delete from ${schema}.${files}
         where bucketname = $1
+        returning *
     `;
 
     const deleteAllFilesSql = `
@@ -184,6 +185,7 @@ export function getFilesSql(schema, tableNames = {}) {
         delete
         from ${schema}.${files}
         where bucketname = any ($1::text[])
+        returning *
     `;
 
     const keepByBucketnamesSql = `
@@ -275,7 +277,7 @@ export function composeFilesDataAccess(schema, tableNames = {}) {
     async function deleteByBucketname(client, bucketname) {
         const res = await client
             .query(deleteByBucketnameSql, [bucketname]);
-        return res.rowCount;
+        return res.rowCount >= 1 ? res.rows[0] : null;
     }
 
     async function deleteAllFiles(client, bucket) {
@@ -298,7 +300,7 @@ export function composeFilesDataAccess(schema, tableNames = {}) {
     async function deleteByBucketnames(client, bucketnames) {
         const res = await client
             .query(deleteByBucketnamesSql, [bucketnames]);
-        return res.rowCount;
+        return res.rows;
     }
 
     async function keepByBucketnames(client, bucketnames) {

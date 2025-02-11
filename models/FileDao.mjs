@@ -9,6 +9,7 @@ import {
     getDataUserFiles
 } from "../application/services/dataServices.mjs";
 import {getUserDAO} from "../application/services/services.mjs";
+import {NotImplementedError} from "velor-utils/utils/errors/NotImplementedError.mjs";
 
 const kFile = Symbol(FILE);
 
@@ -69,4 +70,13 @@ export class FileDAO extends DAOPolicy({
             vo.size, vo.hash,
             vo.status, vo.creation);
     }
+
+    async deleteMany(query) {
+        throw new NotImplementedError();
+    }
+
+    async deleteOne(bucketname) {
+        return await getDataFiles(this).deleteByBucketname(bucketname);
+    }
+
 }
