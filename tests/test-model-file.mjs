@@ -278,7 +278,7 @@ describe('File', () => {
 
         await file.saveOne({bucket});
 
-        let deleted = await file.deleteOne(bucketname);
+        let deleted = await file.deleteOne({bucketname});
         expect(deleted).to.have.property('bucketname', bucketname);
 
         let files = await file.loadMany();

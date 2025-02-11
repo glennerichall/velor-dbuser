@@ -75,7 +75,7 @@ export class FileDAO extends DAOPolicy({
         throw new NotImplementedError();
     }
 
-    async deleteOne(bucketname) {
+    async deleteOne({bucketname}) {
         return await getDataFiles(this).deleteByBucketname(bucketname);
     }
 
