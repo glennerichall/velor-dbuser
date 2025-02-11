@@ -194,6 +194,10 @@ export function getFilesSql(schema, tableNames = {}) {
         where bucketname <> all ($1::text[])
     `;
 
+    const queryBuckets = `
+        select distinct(bucket) from ${schema}.${files}
+    `;
+
     return {
         createFileSql,
         updateFileSql,
@@ -206,6 +210,7 @@ export function getFilesSql(schema, tableNames = {}) {
         keepByBucketnamesSql,
         queryFileByBucketnameSql,
         queryFileByIdSql,
+        queryBuckets,
 
     };
 }
@@ -223,6 +228,7 @@ export function composeFilesDataAccess(schema, tableNames = {}) {
         keepByBucketnamesSql,
         queryFileByBucketnameSql,
         queryFileByIdSql,
+        queryBuckets,
 
     } = getFilesSql(schema, tableNames);
 

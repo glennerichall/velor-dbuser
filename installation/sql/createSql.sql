@@ -448,4 +448,7 @@ create unique index if not exists files_bucketname_key
 create unique index if not exists files_id_uindex
             on "@{SCHEMA}".@{TABLE_FILES} ("id");
 
+create index if not exists files_bucket_index
+            on "@{SCHEMA}".@{TABLE_FILES} ("bucket");
+
 COMMIT;

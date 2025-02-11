@@ -79,4 +79,5 @@ export class FileDAO extends DAOPolicy({
         return await getDataFiles(this).deleteByBucketname(bucketname);
     }
 
+
 }
