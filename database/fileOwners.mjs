@@ -77,6 +77,34 @@ export function composeFileOwnersDataAccess(schema, tableNames = {}) {
         return res.rows;
     }
 
+    async function deleteAllFilesForUser(client, userId, query) {
+        let {
+            remove,
+            where,
+            args
+        } = queryFilesForAllSql(query);
+
+        let innerJoin = `using ${schema}.${fileOwners} o`;
+
+        args.push(userId);
+
+        if (!where) {
+            where = "where "
+        } else {
+            where += ' AND ';
+        }
+        where += `o.user_id = \$${args.length} AND f.id = o.file_id`;
+
+        let querySql = `
+            ${remove}
+            ${innerJoin}
+            ${where}
+        `;
+
+        let res = await client.query(querySql, args);
+        return res.rowCount;
+    }
+
     async function insertFileOwner(client, userId, fileId) {
         const res = await client.query(insertFileOwnerSql, [fileId, userId]);
         return res.rowCount;
@@ -91,5 +119,6 @@ export function composeFileOwnersDataAccess(schema, tableNames = {}) {
         queryFilesForUser,
         insertFileOwner,
         queryUserFileByBucketname,
+        deleteAllFilesForUser,
     };
 }

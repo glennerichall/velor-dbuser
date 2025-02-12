@@ -58,7 +58,7 @@ describe('File Owners', () => {
         expect(files).to.have.lengthOf(2);
     })
 
-    it('should get file by bucketname of user', async ({users}) => {
+    it('should get file of user by bucketname', async ({users}) => {
         let bucket = 'a-bucket';
 
         let user = users[0];
@@ -72,5 +72,25 @@ describe('File Owners', () => {
 
         file = await fileDAO.loadOne({user, bucketname: 'b'});
         expect(file).to.be.null;
+    })
+
+    it('should delete files of user', async({users})=> {
+        let bucket = 'a-bucket';
+        let user = users[0];
+
+        await fileDAO.saveOne({user, bucket});
+        await fileDAO.saveOne({user, bucket});
+        await fileDAO.saveOne({user, bucket: 'another-bucket'});
+        await fileDAO.saveOne({bucket});
+        await fileDAO.saveOne({user: users[1], bucket});
+
+        await fileDAO.deleteMany({
+            user,
+            bucket
+        });
+
+        let files = await fileDAO.loadMany();
+
+        expect(files).to.have.length(3);
     })
 })

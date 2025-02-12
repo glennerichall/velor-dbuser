@@ -72,10 +72,11 @@ export class FileDAO extends DAOPolicy({
 
     async deleteMany(query) {
         let files;
-        if (query.bucketnames) {
-            files = await getDataFiles(this).deleteByBucketnames(query.bucketnames);
-        } else if (query.bucket) {
-            files = await getDataFiles(this).deleteByBucketnames(query.bucketnames);
+        if (query.userId || query.user) {
+            let userId = await this.#getUserId(query);
+            files = await getDataUserFiles(this).deleteAllFilesForUser(userId, query);
+        } else {
+            files = await getDataFiles(this).deleteAllFiles(query);
         }
         return files;
     }

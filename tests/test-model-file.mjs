@@ -1,6 +1,7 @@
 import {setupTestContext} from "./fixtures/setupTestContext.mjs";
 import {getServiceBinder} from "velor-services/injection/ServicesContext.mjs";
 import {FileDAO} from "../models/FileDao.mjs";
+import {generateCombinations} from "velor-utils/utils/collection.mjs";
 
 const {
     expect,
@@ -60,26 +61,6 @@ describe('File', () => {
     })
 
     it('should get many files by page and filter', async () => {
-        function generateCombinations(options) {
-            let keys = Object.keys(options);
-            let values = Object.values(options).filter(arr => arr.length > 0); // Exclude empty properties
-            let result = [];
-
-            function combine(index, current) {
-                if (index === values.length) {
-                    result.push(Object.fromEntries(current));
-                    return;
-                }
-                let key = keys[index];
-                for (let value of values[index]) {
-                    combine(index + 1, [...current, [key, value]]);
-                }
-            }
-
-            combine(0, []);
-            return result;
-        }
-
         // Define the properties
         let options = {
             bucket: ['bucket-a', 'bucket-b'],
@@ -286,6 +267,50 @@ describe('File', () => {
         expect(files[0].bucketname).to.not.eq(bucketname);
     })
 
+    it('should delete many files by bucket', async () => {
+        // Define the properties
+        let options = {
+            bucket: ['bucket-a', 'bucket-b'],
+            hash: [undefined, '123', '456'],
+            size: [undefined, 400, 500, 600, 700],
+            status: [undefined, 'ready', 'created'],
+            creation: [new Date('2019-01-01'), new Date('2019-01-02'), new Date('2019-01-04'), new Date('2019-01-07')]
+        };
+
+        // Generate the combinations
+        let instances = generateCombinations(options);
+
+        // save instances
+        for (let inst of instances) {
+            await file.saveOne(inst);
+        }
+
+        await file.deleteMany({
+            minSize: 500,
+            maxSize: 600,
+            bucket: 'bucket-a'
+        });
+
+        let files = await file.loadMany();
+        expect(files).to.have.length(
+            // the total number of files
+            options.bucket.length *
+            options.hash.length *
+            options.size.length *
+            options.status.length *
+            options.creation.length
+
+            -
+
+            // minus the number of removed files
+            options.hash.length *
+            options.size.filter(x => x >= 500 && x <= 600).length *
+            options.status.length *
+            options.creation.length
+        );
+    })
+
+
     it('should list unique buckets', async () => {
         await file.saveOne({bucket: 'a'});
         await file.saveOne({bucket: 'a'});
@@ -294,7 +319,7 @@ describe('File', () => {
         await file.saveOne({bucket: 'b'});
         await file.saveOne({bucket: 'c'});
 
-        let buckets  = await file.getBuckets();
+        let buckets = await file.getBuckets();
 
         expect(buckets).to.have.length(3);
 
