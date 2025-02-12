@@ -35,7 +35,7 @@ describe('database files', () => {
         let bucket = 'a-bucket';
         let bucketname = 'a-bucketname';
 
-        let file = await createFile(client, bucket, bucketname);
+        let file = await createFile(client, bucket, {bucketname});
         expect(file).to.not.be.undefined;
 
         expect(file).to.have.property('bucketname', bucketname);
@@ -101,9 +101,9 @@ describe('database files', () => {
         let bucket = 'a-bucket';
         let bucketname = 'a-bucketname';
 
-        let file1 = await createFile(client, bucket, bucketname);
+        let file1 = await createFile(client, bucket, {bucketname});
         expect(file1).to.not.be.undefined;
-        expect(createFile(client, bucket, bucketname)).to.be.rejected;
+        expect(createFile(client, bucket, {bucketname})).to.be.rejected;
     })
 
     test('should update file', async ({database}) => {
@@ -236,7 +236,7 @@ describe('database files', () => {
         let bucket = 'a-bucket';
         let bucketname = 'a-bucketname';
 
-        await createFile(client, bucket, bucketname);
+        await createFile(client, bucket, {bucketname});
         await createFile(client, bucket);
 
         await deleteByBucketname(client, bucketname);

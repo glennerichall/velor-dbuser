@@ -48,11 +48,14 @@ export class FileDAO extends DAOPolicy({
     async insertOne(data) {
         let file = await getDataFiles(this).createFile(
             data.bucket,
-            data.bucketname, // generate random uuid if not provided
-            data.status,     // default to ::created
-            data.size,       // default to null
-            data.hash,       // default to null
-            data.creation    // default to current timestamp
+            {
+                bucketname: data.bucketname, // generate random uuid if not provided
+                status:     data.status,     // default to ::created
+                size:       data.size,       // default to null
+                hash:       data.hash,       // default to null
+                creation:   data.creation,   // default to current timestamp,
+                filename:   data.filename
+            }
         );
 
         if (data.userId || data.user) {

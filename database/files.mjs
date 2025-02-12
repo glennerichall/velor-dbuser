@@ -19,14 +19,15 @@ export function getFilesSql(schema, tableNames = {}) {
 
     const createFileSql = `
         insert into ${schema}.${files}
-        (bucket, bucketname, status, size, hash, creation)
+        (bucket, bucketname, status, size, hash, creation, filename)
         values (
             $1, 
             COALESCE($2, gen_random_uuid()::text), 
             COALESCE($3, 'created'::"${schema}".${filestatus}), 
             $4,
             $5,
-            COALESCE($6, CURRENT_TIMESTAMP))
+            COALESCE($6, CURRENT_TIMESTAMP),
+            $7)
         returning *
     `;
 
@@ -244,8 +245,16 @@ export function composeFilesDataAccess(schema, tableNames = {}) {
         return res.rowCount >= 1 ? res.rows[0] : null;
     }
 
-    async function createFile(client, bucket, bucketname, status, size, hash, creation) {
-        const args = [bucket, bucketname, status, size, hash, creation];
+    async function createFile(client, bucket, file = {}) {
+        const {
+            bucketname,
+            status,
+            size,
+            hash,
+            creation,
+            filename
+        } = file;
+        const args = [bucket, bucketname, status, size, hash, creation, filename];
         if (bucketname) {
             const res = await client.query(createFileSql, args);
             return res.rowCount >= 1 ? res.rows[0] : null;

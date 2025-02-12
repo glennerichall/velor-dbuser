@@ -25,7 +25,8 @@ describe('File', () => {
 
         let saved = await file.saveOne({
             bucket,
-            bucketname
+            bucketname,
+            filename: 'my-super-file.txt'
         });
 
         let loaded = await file.loadOne({bucketname});
@@ -309,7 +310,6 @@ describe('File', () => {
             options.creation.length
         );
     })
-
 
     it('should list unique buckets', async () => {
         await file.saveOne({bucket: 'a'});
